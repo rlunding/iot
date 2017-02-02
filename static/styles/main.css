@@ -1,0 +1,61 @@
+@font-face {
+    font-family: AU_Passata;
+    src: url(../fonts/au/AUPassata_Rg.ttf);
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: AU_Passata_bold;
+    src: url(../fonts/au/AUPassata_Bold.ttf);
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: AU_Passata_light;
+    src: url(../fonts/au/AUPassata_Light.ttf);
+}
+
+@font-face {
+    font-family: AU_Peto;
+    src: url(../fonts/au/AU_Peto.ttf);
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    padding-bottom: 20px;
+    margin-bottom: 60px;
+    padding-top: 70px; /* used to be 70*/
+
+    font-family: AU_Passata, 'opensans-regular', sans-serif;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid black;
+
+  height: 60px;
+}
+
+h1 {
+    margin: 50px 0;
+    text-transform: uppercase;
+}
+
+.navbar {
+    margin-bottom: 0 !important;
+}
+
+.navbar-brand {
+    font-family: AU_Peto;
+}
+
+/* Bootstrap overrides
+-------------------------------------------------- */
+

@@ -1,0 +1,26 @@
+{% extends "_base.html" %}
+
+{% from "_form.html" import render_form %}
+
+{% block page_title %}{{ node.ip }}:{{ node.port }}{% endblock %}
+
+{% block body %}
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1>{{ node.ip }}:{{ node.port }}</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <p>Key: {{ node.key }}</p>
+                </div>
+                <div class="col-sm-6">
+                    {{ render_form(url_for('join'), form, legend='Join peer') }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
