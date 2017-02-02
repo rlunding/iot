@@ -1,3 +1,4 @@
+INTERVAL = 3
 
 
 class Config(object):
@@ -7,10 +8,10 @@ class Config(object):
     JOBS = [
         {
             'id': 'job1',
-            'func': 'iot:stabilize',
+            'func': 'iot:stabilize2',
             # 'args': (1, 2),
             'trigger': 'interval',
-            'seconds': 60
+            'seconds': 500
         }
     ]
 

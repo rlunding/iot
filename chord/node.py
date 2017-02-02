@@ -1,5 +1,8 @@
 from chord.util import encode_address
+import requests
+import json
 
+from config import INTERVAL
 
 class Node:
     """
@@ -13,29 +16,62 @@ class Node:
         self.successor = None
         self.predecessor = None
 
+    @classmethod
+    def _in_interval(cls, start: int, stop: int, key: int):
+        if start > stop:
+            if start < key <= stop:
+                return True
+        else:
+            if start < key < pow(10, INTERVAL) or 0 <= key <= stop:
+                return True
+
+    @classmethod
+    def _make_successor_request(cls, node: 'Node', key: int) -> 'Node':
+        url = 'http://{0}:{1}/successor/{2}'.format(node.ip, node.port, key)
+        data = json.loads(requests.get(url).text)
+        return Node(data['ip'], data['port'])
+
+    @classmethod
+    def _make_predecessor_request(cls, node: 'Node') -> 'Node':
+        url = 'http://{0}:{1}/predecessor'.format(node.ip, node.port)
+        data = json.loads(requests.get(url).text)
+        if data['predecessor'] == 'True':
+            return Node(data['ip'], data['port'])
+        return None
+
     def get_key(self) -> int:
         return self.key
 
-    def get_successor(self, key) -> 'Node':
+    def find_successor(self, key) -> 'Node':
         # Find the successor of the peer
         # return: Address of the peer
-        return self.successor
+        if self._in_interval(self.key, self.successor.key, key):
+            return self.successor
+        return self._make_successor_request(self.successor, key)
 
-    def get_predecessor(self) -> 'Node':
-        # Find the predecessor of the peer
-        # Address of the peer
-        return self.predecessor
+    def join(self, ip: str, port: int):
+        # Join the peer with the id to the chord-network
+        self.predecessor = None
+        self.successor = self._make_successor_request(Node(ip, port), self.key)
+
+    def leave(self):
+        self.successor = self
+        self.predecessor = None
 
     def lookup(self, key):
         pass
 
-    def join(self, ip: str, port: int):
-        # Join the peer with the id to the chord-network
-        pass
-
-    def leave(self):
-        self.successor = None
-        self.predecessor = None
+    def notify(self, node: 'Node'):
+        if not self.predecessor or self._in_interval(self.predecessor.key, self.key, node.key):
+            self.predecessor = node
 
     def stabilize(self):
-        pass
+        if self.key != self.successor.key:
+            x = self._make_predecessor_request(self.successor)
+            if x and self._in_interval(self.key, self.successor.key, x.key):
+                self.successor = x
+
+            # Notify successor
+            url = 'http://{0}:{1}/notify'.format(self.successor.ip, self.successor.port)
+            requests.post(url, data={'ip': self.ip, 'port': self.port})  # TODO: perhaps check for answer?
+        self.notify(self)

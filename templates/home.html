@@ -15,9 +15,18 @@
             <div class="row">
                 <div class="col-sm-6">
                     <p>Key: {{ node.key }}</p>
+                    <p>successor: {{ node.successor.ip }}:{{ node.successor.port }}, key: {{ node.successor.key }}</p>
+                    <p>predecessor:
+                        {% if node.predecessor %}
+                            {{ node.predecessor.ip }}:{{ node.predecessor.port }}, key: {{ node.predecessor.key }}
+                        {% else %}
+                            None
+                        {% endif %}
+                    </p>
                 </div>
                 <div class="col-sm-6">
-                    {{ render_form(url_for('join'), form, legend='Join peer') }}
+                    {{ render_form(url_for('join'), join_form, legend='Join peer') }}
+                    {{ render_form(url_for('stabilize'), stabilize_form, legend='Stabilize') }}
                 </div>
             </div>
         </div>

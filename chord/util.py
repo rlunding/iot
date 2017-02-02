@@ -1,6 +1,8 @@
 import hashlib
 import math
 
+from config import INTERVAL
+
 
 def encode_address(ip: str, port: int) -> int:
     """
@@ -13,7 +15,7 @@ def encode_address(ip: str, port: int) -> int:
     return encode_key(ip + str(port))
 
 
-def encode_key(key: str, size=5) -> int:
+def encode_key(key: str, size=INTERVAL) -> int:
     """
     Return a subset of a sha-256 hash
 
