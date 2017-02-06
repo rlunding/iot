@@ -13,6 +13,15 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-sm-6 text-left">
+                    <a class="btn btn-primary" href="http://{{ node.predecessor.ip }}:{{ node.predecessor.port }}">predecessor</a>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a class="btn btn-primary" href="http://{{ node.successor.ip }}:{{ node.successor.port }}">successor</a>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
                 <div class="col-sm-6">
                     <p>Key: {{ node.key }}</p>
                     <p>successor: {{ node.successor.ip }}:{{ node.successor.port }}, key: {{ node.successor.key }}</p>
@@ -23,9 +32,34 @@
                             None
                         {% endif %}
                     </p>
+                    <p>Successor list:</p>
+                    {% if node.successor_list|length > 0 %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>IP</th>
+                                    <th>Port</th>
+                                    <th>Key</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for succ in node.successor_list %}
+                                    <tr>
+                                        <td>{{ succ.ip }}</td>
+                                        <td>{{ succ.port }}</td>
+                                        <td>{{ succ.key }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        EMPTY
+                    {% endif %}
+
                 </div>
                 <div class="col-sm-6">
                     {{ render_form(url_for('join'), join_form, legend='Join peer') }}
+                    {{ render_form(url_for('search'), search_form, legend='Search') }}
                     {{ render_form(url_for('stabilize'), stabilize_form, legend='Stabilize') }}
                 </div>
             </div>

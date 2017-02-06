@@ -12,7 +12,7 @@ from flask import (
 from flask_apscheduler import APScheduler
 from chord.node import Node
 from config import Config
-from forms import JoinForm, StabilizeForm
+from forms import JoinForm, StabilizeForm, SearchForm
 from util import get_free_port
 
 
@@ -25,8 +25,13 @@ node = None
 @app.route('/')
 def home():
     join_form = JoinForm()
+    search_form = SearchForm()
     stabilize_form = StabilizeForm()
-    return render_template('home.html', node=node, join_form=join_form, stabilize_form=stabilize_form)
+    return render_template('home.html',
+                           node=node,
+                           join_form=join_form,
+                           search_form=search_form,
+                           stabilize_form=stabilize_form)
 
 
 @app.route('/successor', methods=['GET'])
@@ -67,17 +72,46 @@ def stabilize():
     return redirect(url_for('home'))
 
 
+@app.route('/succlist', methods=['POST'])
+def succ_list():
+    node.update_successor_list()
+    node.check_predecessor()
+    return jsonify({'success': True})
+
+
 @app.route('/join', methods=['POST'])
 def join():
-    form = JoinForm()
-    if form.validate_on_submit():
+    join_form = JoinForm()
+    if join_form.validate_on_submit():
         join_ip = request.form.get('ip')
         join_port = request.form.get('port')
         node.join(join_ip, join_port)
         flash('Successfully join network', 'success')
         return redirect(url_for('home'))
-    return render_template('home.html', node=node, form=form)
+    search_form = SearchForm()
+    stabilize_form = StabilizeForm()
+    return render_template('home.html',
+                           node=node,
+                           join_form=join_form,
+                           search_form=search_form,
+                           stabilize_form=stabilize_form)
 
+
+@app.route('/search', methods=['POST'])
+def search():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        result_node = node.find_successor(int(request.form.get('key')))
+        output = "{0}:{1}, key={2}".format(result_node.ip, result_node.port, result_node.key)
+        flash(output, 'success')
+        return redirect(url_for('home'))
+    join_form = JoinForm()
+    stabilize_form = StabilizeForm()
+    return render_template('home.html',
+                           node=node,
+                           join_form=join_form,
+                           search_form=search_form,
+                           stabilize_form=stabilize_form)
 
 def stabilize2():
     print('stabilize')
@@ -98,8 +132,8 @@ if __name__ == '__main__':
     scheduler.init_app(app)
     scheduler.start()
 
-    app.config['SERVER_NAME'] = host + ":" + str(port)
-    app.run(host=host, port=port)
+    #app.config['SERVER_NAME'] = host + ":" + str(port)
+    app.run(host=host, port=port, threaded=True)
 
 
 

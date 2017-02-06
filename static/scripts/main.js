@@ -31,11 +31,20 @@ var stabilize = function () {
         $.post('/stabilize', function (data, status) {
 
         });
-    }, Math.floor((Math.random() * 5000) + 2500));
+    }, Math.floor((Math.random() * 500) + 200));
+};
+
+var succlist = function () {
+    setInterval(function () {
+        $.post('/succlist', function (data, status) {
+
+        });
+    }, Math.floor((Math.random() * 1000) + 500));
 };
 
 // Initialize everything when the browser is ready.
 $(document).ready(function() {
     momentjsClasses();
     stabilize();
+    succlist();
 });
