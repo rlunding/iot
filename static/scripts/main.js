@@ -26,7 +26,16 @@ var momentjsClasses = function () {
     });
 };
 
+var stabilize = function () {
+    setInterval(function () {
+        $.post('/stabilize', function (data, status) {
+
+        });
+    }, Math.floor((Math.random() * 5000) + 2500));
+};
+
 // Initialize everything when the browser is ready.
 $(document).ready(function() {
     momentjsClasses();
+    stabilize();
 });

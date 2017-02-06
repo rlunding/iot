@@ -33,7 +33,7 @@ def home():
 def successor():
     successor_node = node.successor
     if successor_node:
-        return jsonify({'successor': True, 'key': successor_node.key, 'id': successor_node.ip, 'port': successor_node.port})
+        return jsonify({'successor': True, 'key': successor_node.key, 'ip': successor_node.ip, 'port': successor_node.port})
     return jsonify({'successor': False})
 
 
@@ -41,7 +41,7 @@ def successor():
 def predecessor():
     predecessor_node = node.predecessor
     if predecessor_node:
-        return jsonify({'predecessor': True, 'key': predecessor_node.key, 'id': predecessor_node.ip, 'port': predecessor_node.port})
+        return jsonify({'predecessor': True, 'key': predecessor_node.key, 'ip': predecessor_node.ip, 'port': predecessor_node.port})
     return jsonify({'predecessor': False})
 
 
@@ -57,8 +57,6 @@ def find_successor(key):
 def notify():
     pred_ip = request.form.get('ip')
     pred_port = request.form.get('port')
-    print("ip", pred_ip)
-    print("port", pred_port)
     node.notify(Node(pred_ip, pred_port))
     return jsonify({'success': True})
 
@@ -100,6 +98,7 @@ if __name__ == '__main__':
     scheduler.init_app(app)
     scheduler.start()
 
+    app.config['SERVER_NAME'] = host + ":" + str(port)
     app.run(host=host, port=port)
 
 

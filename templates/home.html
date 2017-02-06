@@ -2,7 +2,7 @@
 
 {% from "_form.html" import render_form %}
 
-{% block page_title %}{{ node.ip }}:{{ node.port }}{% endblock %}
+{% block page_title %}{{ node.ip }}:{{ node.port }} - {{ node.key }}{% endblock %}
 
 {% block body %}
     <section>

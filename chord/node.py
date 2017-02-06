@@ -18,12 +18,10 @@ class Node:
 
     @classmethod
     def _in_interval(cls, start: int, stop: int, key: int):
-        if start > stop:
-            if start < key <= stop:
-                return True
+        if start < stop:
+            return start < key <= stop
         else:
-            if start < key < pow(10, INTERVAL) or 0 <= key <= stop:
-                return True
+            return start < key < pow(10, INTERVAL) or 0 <= key <= stop
 
     @classmethod
     def _make_successor_request(cls, node: 'Node', key: int) -> 'Node':
@@ -35,7 +33,7 @@ class Node:
     def _make_predecessor_request(cls, node: 'Node') -> 'Node':
         url = 'http://{0}:{1}/predecessor'.format(node.ip, node.port)
         data = json.loads(requests.get(url).text)
-        if data['predecessor'] == 'True':
+        if data['predecessor']:
             return Node(data['ip'], data['port'])
         return None
 
@@ -70,8 +68,9 @@ class Node:
             x = self._make_predecessor_request(self.successor)
             if x and self._in_interval(self.key, self.successor.key, x.key):
                 self.successor = x
-
-            # Notify successor
             url = 'http://{0}:{1}/notify'.format(self.successor.ip, self.successor.port)
             requests.post(url, data={'ip': self.ip, 'port': self.port})  # TODO: perhaps check for answer?
-        self.notify(self)
+        else:
+            if self.predecessor and self._in_interval(self.key, self.successor.key, self.predecessor.key):
+                self.successor = self.predecessor
+            self.notify(self)
