@@ -75,7 +75,15 @@ def notify():
 
 
 @app.route('/stabilize', methods=['POST'])
-def stabilize():
+def stabilize(hest, gris):
+    """short
+
+    long
+
+    :param hest: some hest
+    :param gris: some gris
+    :return: return something
+    """
     node.stabilize()
     return redirect(url_for('home'))
 
@@ -135,7 +143,13 @@ def search():
 @app.route('/doc', defaults={'response': 'html'}, methods=['GET'])
 @app.route('/doc/<string:response>', methods=['GET'])
 def site_map(response):
-    """Print available functions."""
+    """Print available functions.
+
+    Print all available functions and list what parameters they take and what responses they produce.
+
+    :param response: define whether the response should be json or html
+    :return:
+    """
     func_list = {}
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':

@@ -17,18 +17,32 @@
             <div class="row">
                 <div class="col-sm-12">
                     {% if endpoints|length > 0 %}
-                        {% for endpoint, values in endpoints.items() %}
-                            {% for key, value in values.items() %}
-                                {% if key == 'short_description' %}
-                                    <p><i>{{ endpoint }}</i> -->
-                                   {{ value }}
-                                    </p>
-                                {% endif %}
-                                {% if key == 'long_description' %}
-                                    {{ value }}
-                                {% endif %}
-                            {% endfor %}
+                        {% for endpoint, endpoint_values in endpoints.items() %}
+                            {% if endpoint_values['short_description'] %}
+                                <p><b>{{ endpoint }}</b>: {{ endpoint_values['short_description'] }}</p>
+                            {% else %}
+                                <b>{{ endpoint }}</b>
+                            {% endif %}
+
+                            {% if endpoint_values['long_description'] %}
+                                <p>{{ endpoint_values['long_description'] }}</p>
+                            {% endif %}
+
+                            {% if endpoint_values['params'] %}
+                                <ul>
+                                {% for param in endpoint_values['params'] %}
+                                    <li>{{ param['name'] }}: {{ param['doc'] }}</li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if endpoint_values['returns'] %}
+                                <p>Returns: {{ endpoint_values['returns'] }}</p>
+                            {% endif %}
+
                             <hr>
+
+
                         {% endfor %}
                     {% else %}
                         None
