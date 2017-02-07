@@ -1,0 +1,42 @@
+{% extends "_base.html" %}
+
+{% from "_form.html" import render_form %}
+
+{% block page_title %}Documentation{% endblock %}
+
+{% block body %}
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1>Documentation</h1>
+                    <p>Endpoints: {{ endpoints|length }}</p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-12">
+                    {% if endpoints|length > 0 %}
+                        {% for endpoint, values in endpoints.items() %}
+                            {% for key, value in values.items() %}
+                                {% if key == 'short_description' %}
+                                    <p><i>{{ endpoint }}</i> -->
+                                   {{ value }}
+                                    </p>
+                                {% endif %}
+                                {% if key == 'long_description' %}
+                                    {{ value }}
+                                {% endif %}
+                            {% endfor %}
+                            <hr>
+                        {% endfor %}
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

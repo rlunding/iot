@@ -31,7 +31,7 @@ var stabilize = function () {
         $.post('/stabilize', function (data, status) {
 
         });
-    }, Math.floor((Math.random() * 500) + 200));
+    }, Math.floor((Math.random() * 5000) + 200));
 };
 
 var succlist = function () {
@@ -39,7 +39,7 @@ var succlist = function () {
         $.post('/succlist', function (data, status) {
 
         });
-    }, Math.floor((Math.random() * 1000) + 500));
+    }, Math.floor((Math.random() * 10000) + 500));
 };
 
 // Initialize everything when the browser is ready.

@@ -7,13 +7,14 @@ from flask import (
     flash,
     redirect,
     url_for,
-    request
+    request,
+    current_app
 )
 from flask_apscheduler import APScheduler
 from chord.node import Node
 from config import Config
 from forms import JoinForm, StabilizeForm, SearchForm
-from util import get_free_port
+from util import get_free_port, parse_docstring
 
 
 app = Flask(__name__)
@@ -24,6 +25,7 @@ node = None
 
 @app.route('/')
 def home():
+    """Show the node status"""
     join_form = JoinForm()
     search_form = SearchForm()
     stabilize_form = StabilizeForm()
@@ -36,6 +38,7 @@ def home():
 
 @app.route('/successor', methods=['GET'])
 def successor():
+    """Return the successor"""
     successor_node = node.successor
     if successor_node:
         return jsonify({'successor': True, 'key': successor_node.key, 'ip': successor_node.ip, 'port': successor_node.port})
@@ -52,6 +55,11 @@ def predecessor():
 
 @app.route('/successor/<int:key>', methods=['GET'])
 def find_successor(key):
+    """Return the node responsible for a given key.
+
+    :param key:
+    :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port} if success, otherwise {'successor': false}
+    """
     successor_node = node.find_successor(key)
     if successor_node:
         return jsonify({'successor': True, 'key': successor_node.key, 'ip': successor_node.ip, 'port': successor_node.port})
@@ -74,6 +82,12 @@ def stabilize():
 
 @app.route('/succlist', methods=['POST'])
 def succ_list():
+    """Update successor list & predecessor
+
+    Update a nodes successor list and check if the predecessor is still alive
+
+    :returns: {'success': true}
+    """
     node.update_successor_list()
     node.check_predecessor()
     return jsonify({'success': True})
@@ -81,6 +95,9 @@ def succ_list():
 
 @app.route('/join', methods=['POST'])
 def join():
+    """Create a new post.
+    Form Data: title, content, authorid.
+    """
     join_form = JoinForm()
     if join_form.validate_on_submit():
         join_ip = request.form.get('ip')
@@ -99,6 +116,7 @@ def join():
 
 @app.route('/search', methods=['POST'])
 def search():
+    """Search for the successor node responsible for a given key."""
     search_form = SearchForm()
     if search_form.validate_on_submit():
         result_node = node.find_successor(int(request.form.get('key')))
@@ -112,6 +130,20 @@ def search():
                            join_form=join_form,
                            search_form=search_form,
                            stabilize_form=stabilize_form)
+
+
+@app.route('/doc', defaults={'response': 'html'}, methods=['GET'])
+@app.route('/doc/<string:response>', methods=['GET'])
+def site_map(response):
+    """Print available functions."""
+    func_list = {}
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint != 'static':
+            func_list[rule.rule] = parse_docstring(app.view_functions[rule.endpoint].__doc__)
+    if response == 'json':
+        return jsonify(func_list)
+    return render_template('doc.html', endpoints=func_list)
+
 
 def stabilize2():
     print('stabilize')
@@ -129,8 +161,8 @@ if __name__ == '__main__':
     node.successor = node
 
     scheduler = APScheduler()
-    scheduler.init_app(app)
-    scheduler.start()
+    #scheduler.init_app(app)
+    #scheduler.start()
 
     #app.config['SERVER_NAME'] = host + ":" + str(port)
     app.run(host=host, port=port, threaded=True)
