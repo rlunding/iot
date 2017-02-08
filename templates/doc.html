@@ -17,9 +17,12 @@
             <div class="row">
                 <div class="col-sm-12">
                     {% if endpoints|length > 0 %}
-                        {% for endpoint, endpoint_values in endpoints.items() %}
+                        {% for endpoint, endpoint_values in endpoints|dictsort %}
                             {% if endpoint_values['short_description'] %}
-                                <p><b>{{ endpoint }}</b>: {{ endpoint_values['short_description'] }}</p>
+                                <p>
+                                    <b>{{ endpoint }}</b>
+                                    {{ endpoint_values['short_description'] }}
+                                </p>
                             {% else %}
                                 <b>{{ endpoint }}</b>
                             {% endif %}
@@ -28,7 +31,12 @@
                                 <p>{{ endpoint_values['long_description'] }}</p>
                             {% endif %}
 
+                            {% if endpoint_values['methods'] %}
+                                <p>Methods: {{ endpoint_values['methods'] }}</p>
+                            {% endif %}
+
                             {% if endpoint_values['params'] %}
+                                <p>Params:</p>
                                 <ul>
                                 {% for param in endpoint_values['params'] %}
                                     <li>{{ param['name'] }}: {{ param['doc'] }}</li>
@@ -39,10 +47,7 @@
                             {% if endpoint_values['returns'] %}
                                 <p>Returns: {{ endpoint_values['returns'] }}</p>
                             {% endif %}
-
                             <hr>
-
-
                         {% endfor %}
                     {% else %}
                         None

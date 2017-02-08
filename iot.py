@@ -1,4 +1,5 @@
 import sys
+import collections
 
 from flask import (
     Flask,
@@ -75,7 +76,7 @@ def notify():
 
 
 @app.route('/stabilize', methods=['POST'])
-def stabilize(hest, gris):
+def stabilize():
     """short
 
     long
@@ -124,7 +125,11 @@ def join():
 
 @app.route('/search', methods=['POST'])
 def search():
-    """Search for the successor node responsible for a given key."""
+    """
+    Search for the successor node responsible for a given key.
+
+    :return:
+    """
     search_form = SearchForm()
     if search_form.validate_on_submit():
         result_node = node.find_successor(int(request.form.get('key')))
@@ -150,13 +155,13 @@ def site_map(response):
     :param response: define whether the response should be json or html
     :return:
     """
-    func_list = {}
+    endpoints = {}
     for rule in app.url_map.iter_rules():
         if rule.endpoint != 'static':
-            func_list[rule.rule] = parse_docstring(app.view_functions[rule.endpoint].__doc__)
+            endpoints[rule.rule] = parse_docstring(app.view_functions[rule.endpoint].__doc__, rule.methods)
     if response == 'json':
-        return jsonify(func_list)
-    return render_template('doc.html', endpoints=func_list)
+        return jsonify(endpoints)
+    return render_template('doc.html', endpoints=endpoints)
 
 
 def stabilize2():

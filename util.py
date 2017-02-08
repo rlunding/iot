@@ -20,7 +20,7 @@ def reindent(string):
     return "\n".join(l.strip() for l in string.strip().split("\n"))
 
 
-def parse_docstring(docstring):
+def parse_docstring(docstring, methods=None):
     """Parse the docstring into its components.
     :returns: a dictionary of form
               {
@@ -61,10 +61,14 @@ def parse_docstring(docstring):
                 match = RETURNS_REGEX.search(params_returns_desc)
                 if match:
                     returns = reindent(match.group("doc"))
+    if methods:
+        unwanted_methods = {'OPTIONS', 'HEAD'}
+        methods = [x for x in methods if x not in unwanted_methods]
 
     return {
         "short_description": short_description,
         "long_description": long_description,
         "params": params,
-        "returns": returns
+        "returns": returns,
+        "methods": methods
     }
