@@ -140,6 +140,12 @@ def search():
                            search_form=search_form)
 
 
+@app.route('/closest_finger/<int:key>', methods=['GET'])
+def closest_finger(key):
+    pf = node.closest_preceding_finger(key)
+    return jsonify({'node_ip': pf.ip, 'node_port': pf.port})
+
+
 @app.route('/doc', defaults={'response': 'html'}, methods=['GET'])
 @app.route('/doc/<string:response>', methods=['GET'])
 def site_map(response):

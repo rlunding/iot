@@ -1,4 +1,4 @@
-from chord.util import encode_address
+from chord.util import encode_address, in_interval
 from chord.finger_table import FingerTable
 import requests
 import json
@@ -20,14 +20,6 @@ class Node:
         self.predecessor = None
         self.successor_list = []
         self.finger_table = FingerTable(self.key)
-
-    @classmethod
-    def _in_interval(cls, start: int, stop: int, key: int):
-        """Calculate if key is within the interval of start and stop"""
-        if start < stop:
-            return start < key <= stop
-        else:
-            return start < key < pow(10, INTERVAL) or 0 <= key <= stop
 
     @classmethod
     def _make_successor_request(cls, node: 'Node', key: int) -> 'Node':
@@ -59,17 +51,37 @@ class Node:
     def get_key(self) -> int:
         return self.key
 
-    def find_successor(self, key) -> 'Node':
-        # Find the successor of the peer
-        # return: Address of the peer
-        if self._in_interval(self.key, self.successor.key, key):
-            return self.successor
-        result = self._make_successor_request(self.successor, key)
-        if not result:
-            self.set_new_successor() #TODO: correct to do this here?
-            return self.find_successor(key)
+    def find_successor(self, key: int, use_fingers=True) -> 'Node':
+        if use_fingers:
+            node = self.find_predecessor(key)
+            return node._make_successor_request(node, None)
         else:
-            return result
+            if in_interval(self.key, self.successor.key, key):
+                return self.successor
+            result = self._make_successor_request(self.successor, key)
+            if not result:
+                self.set_new_successor() #TODO: correct to do this here?
+                return self.find_successor(key)
+            else:
+                return result
+
+    def find_predecessor(self, key: int):
+        node = self
+        while not in_interval(node.key, node.successor.key, key):
+            if node.key == self.key:
+                node = node.closest_preceding_finger(key)
+            else:
+                url = 'http://{0}:{1}/closest_finger/{2}'.format(node.ip, node.port, key)
+                data = json.loads(requests.get(url).text)
+                node = Node(data['node_ip'], data['node_port'])
+                node.successor = node._make_successor_request(node, None)
+        return node
+
+    def closest_preceding_finger(self, key):
+        node = self.finger_table.closest_preceding_finger(key)
+        if node:
+            return node
+        return self
 
     def join(self, ip: str, port: int):
         # Join the peer with the id to the chord-network
@@ -83,18 +95,18 @@ class Node:
         self.successor_list = []
 
     def notify(self, node: 'Node'):
-        if not self.predecessor or self._in_interval(self.predecessor.key, self.key, node.key):
+        if not self.predecessor or in_interval(self.predecessor.key, self.key, node.key):
             self.predecessor = node
 
     def stabilize(self):
         if self.key != self.successor.key:
             x = self._make_predecessor_request()
-            if x and self._in_interval(self.key, self.successor.key, x.key):
+            if x and in_interval(self.key, self.successor.key, x.key):
                 self.successor = x
             url = 'http://{0}:{1}/notify'.format(self.successor.ip, self.successor.port)
             requests.post(url, data={'ip': self.ip, 'port': self.port})  # TODO: perhaps check for answer?
         else:
-            if self.predecessor and self._in_interval(self.key, self.successor.key, self.predecessor.key):
+            if self.predecessor and in_interval(self.key, self.successor.key, self.predecessor.key):
                 self.successor = self.predecessor
             self.notify(self)
 

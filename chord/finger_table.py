@@ -2,6 +2,8 @@ import math
 
 from config import INTERVAL
 
+from chord.util import in_interval
+
 
 class FingerTable:
 
@@ -22,4 +24,10 @@ class FingerTable:
     def update_finger(self, i: int, node):
         self.fingers[i] = node
 
-
+    def closest_preceding_finger(self, key: int):
+        for i in range(self.max_i, -1, -1):
+            if in_interval(self.key, self.keys[i], key):
+                if not self.fingers[i]:
+                    continue
+                return self.fingers[i]
+        return None

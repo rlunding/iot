@@ -27,3 +27,11 @@ def encode_key(key: str, size=INTERVAL) -> int:
     if size is not None:
         res //= int((math.pow(10, (int(math.log10(res)) + 1 - size))))
     return res
+
+
+def in_interval(start: int, stop: int, key: int):
+    """Calculate if key is within the interval of start and stop"""
+    if start < stop:
+        return start < key <= stop
+    else:
+        return start < key < pow(10, INTERVAL) or 0 <= key <= stop
