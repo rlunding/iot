@@ -19,10 +19,6 @@ class JoinForm(Form):
     join = SubmitField('Join')
 
 
-class StabilizeForm(Form):
-    stabilize = SubmitField('Stabilize')
-
-
 class SearchForm(Form):
     key = IntegerField('Key', validators=[DataRequired(), NumberRange(min=1, max=65535)])
     submit = SubmitField('Search')

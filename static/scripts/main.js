@@ -26,25 +26,7 @@ var momentjsClasses = function () {
     });
 };
 
-var stabilize = function () {
-    setInterval(function () {
-        $.post('/stabilize', function (data, status) {
-
-        });
-    }, Math.floor((Math.random() * 5000) + 2000));
-};
-
-var succlist = function () {
-    setInterval(function () {
-        $.post('/succlist', function (data, status) {
-
-        });
-    }, Math.floor((Math.random() * 10000) + 5000));
-};
-
 // Initialize everything when the browser is ready.
 $(document).ready(function() {
     momentjsClasses();
-    stabilize();
-    succlist();
 });

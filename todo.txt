@@ -1,0 +1,4 @@
+Lav den adaptiv update så den ikke spammer amok (stabilize).
+Join: fix automatisk predecessor
+Update af succ_list er rigtig dårligt lavet (gem gammel liste? opdater kun én af gangen?)
+Lav link direkte når man søger efter key
