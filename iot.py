@@ -167,7 +167,8 @@ def stabilize():
     node.stabilize()
     node.update_successor_list()
     node.check_predecessor()
-    sleep(3 + random.uniform(0, 5))
+    node.fix_fingers()
+    sleep(1 + random.uniform(0, 2))
     executor.submit(stabilize)
 
 

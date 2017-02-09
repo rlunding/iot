@@ -55,7 +55,27 @@
                     {% else %}
                         EMPTY
                     {% endif %}
-
+                    <p>Finger table</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Finger-key</th>
+                                <th>IP</th>
+                                <th>Port</th>
+                                <th>Key</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for finger in node.finger_table.fingers %}
+                                <tr>
+                                    <td>{{ node.finger_table.keys[loop.index0] }}</td>
+                                    <td>{{ finger.ip }}</td>
+                                    <td>{{ finger.port }}</td>
+                                    <td>{{ finger.key }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
                 <div class="col-sm-6">
                     {{ render_form(url_for('join'), join_form, legend='Join peer') }}

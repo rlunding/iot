@@ -1,6 +1,8 @@
 from chord.util import encode_address
+from chord.finger_table import FingerTable
 import requests
 import json
+import random
 
 from config import INTERVAL, SUCCESSOR_LIST_SIZE
 
@@ -17,9 +19,11 @@ class Node:
         self.successor = None
         self.predecessor = None
         self.successor_list = []
+        self.finger_table = FingerTable(self.key)
 
     @classmethod
     def _in_interval(cls, start: int, stop: int, key: int):
+        """Calculate if key is within the interval of start and stop"""
         if start < stop:
             return start < key <= stop
         else:
@@ -27,6 +31,7 @@ class Node:
 
     @classmethod
     def _make_successor_request(cls, node: 'Node', key: int) -> 'Node':
+        """Make a request to a node go get the successor responsible for a key"""
         if key:
             url = 'http://{0}:{1}/successor/{2}'.format(node.ip, node.port, key)
         else:
@@ -38,6 +43,7 @@ class Node:
         return Node(data['ip'], data['port'])
 
     def _make_predecessor_request(self) -> 'Node':
+        """Make a request to the successor node asking for its predecessor"""
         url = 'http://{0}:{1}/predecessor'.format(self.successor.ip, self.successor.port)
         try:
             data = json.loads(requests.get(url).text)
@@ -60,7 +66,7 @@ class Node:
             return self.successor
         result = self._make_successor_request(self.successor, key)
         if not result:
-            self.update_successor_list() #TODO: correct to do this here?
+            self.set_new_successor() #TODO: correct to do this here?
             return self.find_successor(key)
         else:
             return result
@@ -75,9 +81,6 @@ class Node:
         self.predecessor = None
         self.successor = self
         self.successor_list = []
-
-    def lookup(self, key):
-        pass
 
     def notify(self, node: 'Node'):
         if not self.predecessor or self._in_interval(self.predecessor.key, self.key, node.key):
@@ -118,3 +121,9 @@ class Node:
             requests.get(url)
         except:
             self.predecessor = None
+
+    def fix_fingers(self):
+        i = random.randint(0, self.finger_table.max_i) # Find random entry to update
+        node = self.find_successor(self.finger_table.find_start(i)) # Find correct successor
+        self.finger_table.update_finger(i, node) # Update finger table
+
