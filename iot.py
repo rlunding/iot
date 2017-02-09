@@ -174,13 +174,20 @@ def stabilize():
 if __name__ == '__main__':
     host = '127.0.0.1'
     port = 5000 #None
+    join_port = None
+    if len(sys.argv) > 2:
+        join_port = int(sys.argv[2])
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
     if port is None:
         port = get_free_port()
 
+
     node = Node(host, port)
     node.successor = node
+
+    if join_port:
+        node.join(host, join_port)
 
     executor.submit(stabilize)
 
