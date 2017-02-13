@@ -69,8 +69,8 @@ def predecessor():
     return jsonify({'predecessor': False})
 
 
-@app.route('/successor/<int:key>', methods=['GET'])
-def find_successor(key):
+@app.route('/successor/<int:key>/<int:start_key>', methods=['GET'])
+def find_successor(key, start_key):
     """Successor for a key
 
     Return the node responsible for a given key.
@@ -79,10 +79,17 @@ def find_successor(key):
     :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port} if success,
     otherwise {'successor': false}
     """
-    successor_node = node.find_successor(key)
+    if node.key == start_key:
+        return jsonify({'successor': False, 'error': 'node.key == start key == {0}'.format(start_key)})
+
+    successor_node, msg = node.find_successor(key, start_key)
     if successor_node:
-        return jsonify({'successor': True, 'key': successor_node.key, 'ip': successor_node.ip, 'port': successor_node.port})
-    return jsonify({'successor': False})
+        return jsonify({'successor': True,
+                        'key': successor_node.key,
+                        'ip': successor_node.ip,
+                        'port': successor_node.port,
+                        'msg': msg})
+    return jsonify({'successor': False, 'error': msg})
 
 
 @app.route('/notify', methods=['POST'])
@@ -169,12 +176,11 @@ def stabilize():
     """Stabilize
     Call stabilize on the node
     """
-    print("Stabilize")
     node.stabilize()
     node.update_successor_list()
     node.check_predecessor()
     node.fix_fingers()
-    sleep(1 + random.uniform(0, 2))
+    sleep(2 + random.uniform(0, 2))
     executor.submit(stabilize)
 
 

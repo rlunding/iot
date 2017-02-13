@@ -3,5 +3,5 @@ SUCCESSOR_LIST_SIZE = 3
 
 
 class Config(object):
-    DEBUG = True
+    DEBUG = False
     SECRET_KEY = 'insecurekeyfordev'

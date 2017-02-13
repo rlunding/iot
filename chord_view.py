@@ -12,7 +12,8 @@ app = Flask(__name__)
 def home():
     port = 5000
     nodes = []
-    for i in range(0, 50):
+    keys = []
+    for i in range(0, 100):
         url = 'http://127.0.0.1:{0}/successor'.format(port)
         data = json.loads(requests.get(url).text)
 
@@ -21,7 +22,8 @@ def home():
             break
 
         nodes.append(data['port'])  # + data['ip'], data['port']
-    return jsonify({'nodes_length': len(nodes), 'nodes': nodes})
+        keys.append(data['key'])
+    return jsonify({'nodes_length': len(nodes), 'nodes': nodes, 'keys': keys})
 
 
 if __name__ == '__main__':
