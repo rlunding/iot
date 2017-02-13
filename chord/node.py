@@ -52,28 +52,33 @@ class Node:
         return self.key
 
     def find_successor(self, key: int, use_fingers=True) -> 'Node':
-        if use_fingers:
+        if use_fingers: # Try to use fingers
             node = self.find_predecessor(key)
-            return node._make_successor_request(node, None)
+            if node:
+                return node._make_successor_request(node, None)
+
+        # Otherwise use the good old method
+        if in_interval(self.key, self.successor.key, key):
+            return self.successor
+        result = self._make_successor_request(self.successor, key)
+        if not result:
+            self.set_new_successor() #TODO: correct to do this here?
+            return self.find_successor(key)
         else:
-            if in_interval(self.key, self.successor.key, key):
-                return self.successor
-            result = self._make_successor_request(self.successor, key)
-            if not result:
-                self.set_new_successor() #TODO: correct to do this here?
-                return self.find_successor(key)
-            else:
-                return result
+            return result
 
     def find_predecessor(self, key: int):
         node = self
         while not in_interval(node.key, node.successor.key, key):
             if node.key == self.key:
-                node = node.closest_preceding_finger(key)
+                node = self.closest_preceding_finger(key)
+                if node.key == self.key:
+                    return None
             else:
                 url = 'http://{0}:{1}/closest_finger/{2}'.format(node.ip, node.port, key)
                 data = json.loads(requests.get(url).text)
                 node = Node(data['node_ip'], data['node_port'])
+            if not node.successor:
                 node.successor = node._make_successor_request(node, None)
         return node
 
@@ -87,7 +92,9 @@ class Node:
         # Join the peer with the id to the chord-network
         self.predecessor = None
         self.successor = self._make_successor_request(Node(ip, port), self.key)
+        self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
         self.successor_list = []
+        # TODO: add notify
 
     def leave(self):
         self.predecessor = None
@@ -109,6 +116,7 @@ class Node:
             if self.predecessor and in_interval(self.key, self.successor.key, self.predecessor.key):
                 self.successor = self.predecessor
             self.notify(self)
+        self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
 
     def update_successor_list(self):
         self.successor_list = [] # TODO: bug, perhaps don't delete the list completely
@@ -124,6 +132,7 @@ class Node:
     def set_new_successor(self):
         if len(self.successor_list) > 0:
             self.successor = self.successor_list.pop(0)
+            self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
         else:
             self.leave()
 
@@ -136,6 +145,9 @@ class Node:
 
     def fix_fingers(self):
         i = random.randint(0, self.finger_table.max_i) # Find random entry to update
-        node = self.find_successor(self.finger_table.find_start(i)) # Find correct successor
+        node = self.find_successor(self.finger_table.keys[i]) # Find correct successor
         self.finger_table.update_finger(i, node) # Update finger table
+
+    def __str__(self):
+        return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"
 

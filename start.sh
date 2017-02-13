@@ -19,5 +19,6 @@ else echo "Starting $(($1 + 1)) peers"
 	 echo "python3 iot.py $((5000 + COUNT)) 5000 &"
 	 python3 iot.py $((5000 + COUNT)) 5000 &
 	 let COUNT=COUNT-1
+	 sleep 2
      done
 fi

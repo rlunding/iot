@@ -26,7 +26,7 @@ class FingerTable:
 
     def closest_preceding_finger(self, key: int):
         for i in range(self.max_i, -1, -1):
-            if in_interval(self.key, self.keys[i], key):
+            if in_interval(self.key, key, self.keys[i]):
                 if not self.fingers[i]:
                     continue
                 return self.fingers[i]
