@@ -124,32 +124,7 @@ class Node:
             # Trying a new successor from the list
             self.set_new_successor() #TODO: correct to do this here?
             return self.find_successor(key, start_key)
-
         return result, "Slow method success"
-
-    def find_predecessor(self, key: int):
-        node = self
-        while not in_interval(node.key, node.successor.key, key):
-            print('Trying to find predecessor. Interval:{0} < {1} <= {2}'.format(node.key, key, node.successor.key))
-            if node.key == self.key:
-                print('Internal search.')
-                node = self.closest_preceding_finger(key)
-                print('Internal returned: {0}'.format(node.key))
-                if node.key == self.key:
-                    print('Exit: node.key=self.key')
-                    return None
-            else:
-                url = 'http://{0}:{1}/closest_finger/{2}'.format(node.ip, node.port, key)
-                print('Request to:')
-                print(url)
-                data = json.loads(requests.get(url).text)
-                node = Node(data['node_ip'], data['node_port'])
-                print('Request returned: {0}'.format(node.key))
-            if not node.successor:
-                node.successor = node._make_successor_request(node, None)
-        print('Returning node:')
-        print(node.key)
-        return node
 
     def closest_preceding_finger(self, key):
         print('{1}: Searching finger table for key: {0}'.format(key, self.port))
