@@ -76,8 +76,10 @@ def find_successor(key, start_key):
     Return the node responsible for a given key.
 
     :param key: they key to search for
-    :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port} if success,
-    otherwise {'successor': false}
+    :param start_key: key for peer starting the request
+    :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port,
+    'msg': message explaining the request } if success,
+    otherwise {'successor': false, 'error': error message}
     """
     if node.key == start_key:
         return jsonify({'successor': False, 'error': 'node.key == start key == {0}'.format(start_key)})

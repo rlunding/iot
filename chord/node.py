@@ -26,10 +26,13 @@ class Node:
         self.last_request_key = None
         self.finger_index_update = 0
 
-    def _make_successor_request(self, node: 'Node', key: int) -> 'Node':
+    def _make_successor_request(self, node: 'Node', key: int, start_key: int = None) -> 'Node':
         """Make a request to a node go get the successor responsible for a key"""
+        if start_key is None:
+            start_key = self.key
+
         if key:
-            url = 'http://{0}:{1}/successor/{2}/{3}'.format(node.ip, node.port, key, self.key)
+            url = 'http://{0}:{1}/successor/{2}/{3}'.format(node.ip, node.port, key, start_key)
         else:
             url = 'http://{0}:{1}/successor'.format(node.ip, node.port)
         try:
@@ -59,24 +62,14 @@ class Node:
     def get_key(self) -> int:
         return self.key
 
-    def find_successor(self, key: int, start_key: int, use_fingers=True):
-
+    def _use_fingertable(self, key: int, start_key: int):
         # If we have already seen this request key it means
         # that we are in an endless loop and we need to get out
         # Push the job to our successor
         if start_key == self.last_request_key:
-            return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(start_key)
+            return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(
+                start_key)
         self.last_request_key = start_key
-
-        # Check if the key is between us an our successor.
-        # If that is the case we are done and can return the
-        # successor.
-        if in_interval(self.key, self.successor.key, key):
-            return self.successor, "Self successor"
-
-        if self.predecessor is not None:
-            if in_interval(self.predecessor.key, self.key, key):
-                return Node(self.ip, self.port), "Self predecessor"
 
         # The key is not in our interval so we forward the request
         # to the best fitting peer in our finger table.
@@ -87,7 +80,8 @@ class Node:
         # forward the call to the successor as we have already
         # verified that we are not done (key is not in our interval)
         if node.key == self.key:
-            return self._make_successor_request(self.successor, key), "Finger table returned own key: {0}".format(node.key)
+            return self._make_successor_request(self.successor, key), "Finger table returned own key: {0}".format(
+                node.key)
 
         # Request find_successor on this peer
         url = 'http://{0}:{1}/successor/{2}/{3}'.format(node.ip, node.port, key, start_key)
@@ -104,25 +98,34 @@ class Node:
                 return None, data['error']
         return None, "Request data None"
 
-        '''
-        if use_fingers: # Try to use fingers
-            print('Find successor: {0}'.format(key))
-            node = self.find_predecessor(key)
-            if node:
-                print('Found successor: {0}'.format(node.key))
-                return node._make_successor_request(node, None)
+    def find_successor(self, key: int, start_key: int, use_fingers=True):
 
-        print('Did not find successor using finger table. Trying good old method')
-        # Otherwise use the good old method
+        # Check if the key is between us an our successor.
+        # If that is the case we are done and can return the
+        # successor.
         if in_interval(self.key, self.successor.key, key):
-            return self.successor
-        result = self._make_successor_request(self.successor, key)
-        if not result:
+            return self.successor, "Self successor"
+        # Also check the predecessor
+        if self.predecessor is not None:
+            if in_interval(self.predecessor.key, self.key, key):
+                return Node(self.ip, self.port), "Self predecessor"
+
+
+        # Trying finger tables first if enabled
+        if use_fingers:
+            finger_result, msg = self._use_fingertable(key, start_key)
+            if finger_result is not None:
+                return finger_result, msg
+
+        # Finger table did not return a result or is not enabled
+        # Trying slow method to move forward
+        result = self._make_successor_request(self.successor, key, start_key)
+        if result is None:
+            # Trying a new successor from the list
             self.set_new_successor() #TODO: correct to do this here?
-            return self.find_successor(key)
-        else:
-            return result
-        '''
+            return self.find_successor(key, start_key)
+
+        return result, "Slow method success"
 
     def find_predecessor(self, key: int):
         node = self
@@ -225,11 +228,19 @@ class Node:
 
     def fix_fingers(self):
         # i = random.randint(0, self.finger_table.max_i) # Find random entry to update
+        inc_prob = random.randint(0, 10)
+
         i = self.finger_index_update
         node, msg = self.find_successor(self.finger_table.keys[i], self.key) # Find correct successor
         if node is not None:
                         self.finger_table.update_finger(i, node) # Update finger table
-        self.finger_index_update = i+1
+                        self.finger_index_update = i+1
+        else:
+            # Finger table has a small change of jumping one index even if this
+            # did not get updated.
+            if inc_prob == 1:
+                self.finger_index_update = i + 1
+
         if self.finger_index_update > self.finger_table.max_i:
             self.finger_index_update = 0
 
