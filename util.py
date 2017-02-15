@@ -2,7 +2,9 @@ import socket
 import re
 from sphinx.util import docstrings
 
+
 def get_free_port() -> int:
+    """Return a free port. This solution is a bit of a hack, since the port is released and not """
     s = socket.socket()
     s.bind(('', 0))
     p = s.getsockname()[1]

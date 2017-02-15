@@ -18,13 +18,13 @@
                 <div class="col-sm-12">
                     {% if endpoints|length > 0 %}
                         {% for endpoint, endpoint_values in endpoints|dictsort %}
+
                             {% if endpoint_values['short_description'] %}
                                 <p>
-                                    <b>{{ endpoint }}</b>
-                                    {{ endpoint_values['short_description'] }}
+                                    <b>'{{ endpoint }}'</b>: {{ endpoint_values['short_description'] }}
                                 </p>
                             {% else %}
-                                <b>{{ endpoint }}</b>
+                                <b>'{{ endpoint }}'</b>
                             {% endif %}
 
                             {% if endpoint_values['long_description'] %}
