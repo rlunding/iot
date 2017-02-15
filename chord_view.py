@@ -13,9 +13,12 @@ def home():
     port = 5000
     nodes = []
     keys = []
-    for i in range(0, 100):
+    while True:
         url = 'http://127.0.0.1:{0}/successor'.format(port)
-        data = json.loads(requests.get(url).text)
+        try:
+            data = json.loads(requests.get(url).text)
+        except:
+            break
 
         port = data['port']
         if port in nodes:

@@ -29,6 +29,7 @@ node = None
 @app.route('/')
 def home():
     """Homepage
+
     Show all information about the node
 
     :returns: html page with node information
@@ -44,6 +45,7 @@ def home():
 @app.route('/successor', methods=['GET'])
 def successor():
     """Successor
+
     Return the successor of a given node
 
     :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port} if the node have a
@@ -58,6 +60,7 @@ def successor():
 @app.route('/predecessor', methods=['GET'])
 def predecessor():
     """Predecessor
+
     Return the predecessor of a given node
 
     :returns: {'predecessor': true, 'key': predecessor.key, 'ip': predecessor.ip, 'port': predecessor.port} if the node
@@ -112,8 +115,13 @@ def notify():
 
 @app.route('/join', methods=['POST'])
 def join():
-    """Create a new post.
-    Form Data: title, content, authorid.
+    """Join
+
+    Join the chord-network which the node with the provided ip and port is part of.
+
+    :param ip: the ip-address of the node which should be joined.
+    :param port: the port of the node which should be joined.
+    :return: html page with node information, possible also with errors if the input is invalid.
     """
     join_form = JoinForm()
     if join_form.validate_on_submit():
@@ -131,10 +139,12 @@ def join():
 
 @app.route('/search', methods=['POST'])
 def search():
-    """
+    """Search
+
     Search for the successor node responsible for a given key.
 
-    :returns:
+    :param key: the key of the node which should be found.
+    :returns: html page with node information, possible also with errors if the input is invalid.
     """
     search_form = SearchForm()
     if search_form.validate_on_submit():
@@ -154,13 +164,20 @@ def search():
 
 @app.route('/closest_finger/<int:key>', methods=['GET'])
 def closest_finger(key):
+    """Closest finger
+
+    Report the closest preceding finger.
+
+    :param key: the key that is searched for
+    :return: json response: {'node_ip': ip, 'node_port': port}
+    """
     pf = node.closest_preceding_finger(key)
     return jsonify({'node_ip': pf.ip, 'node_port': pf.port})
 
 
-@app.route('/doc', defaults={'response': 'html'}, methods=['GET'])
-@app.route('/doc/<string:response>', methods=['GET'])
-def site_map(response):
+@app.route('/api', defaults={'response': 'html'}, methods=['GET'])
+@app.route('/api/<string:response>', methods=['GET'])
+def api(response):
     """Print available functions.
 
     Print all available functions and list what parameters they take and what responses they produce.
