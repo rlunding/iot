@@ -24,7 +24,7 @@ class Node:
         self.successor_list = []
         self.finger_table = FingerTable(self.key)
         self.last_request_key = None
-        self.last_request_owner = None
+        self.last_request_owner = []
         self.finger_index_update = 0
 
     def _make_successor_request(self, node: 'Node', key: int, start_key: int = None) -> 'Node':
@@ -52,12 +52,12 @@ class Node:
         # If we have already seen this request key it means
         # that we are in an endless loop and we need to get out
         # Push the job to our successor
-        if start_key == self.last_request_owner or key == self.last_request_key:
+        if start_key in self.last_request_owner or key == self.last_request_key:
             # return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(
             #    start_key)
             return None, "Start key {0} same as last request key".format(start_key)
         self.last_request_key = key
-        self.last_request_owner = start_key
+        self.last_request_owner.append(start_key)
 
         # The key is not in our interval so we forward the request
         # to the best fitting peer in our finger table.
@@ -170,7 +170,7 @@ class Node:
     def stabilize(self):
         # clear last request key
         self.last_request_key = None
-        self.last_request_owner = None
+        self.last_request_owner = []
 
         if self.key != self.successor.key:
             x = None
