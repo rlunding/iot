@@ -45,20 +45,6 @@ class Node:
                 return Node(data['ip'], data['port'])
         return None
 
-    def _make_predecessor_request(self) -> 'Node':
-        """Make a request to the successor node asking for its predecessor"""
-        url = 'http://{0}:{1}/predecessor'.format(self.successor.ip, self.successor.port)
-        try:
-            data = json.loads(requests.get(url).text)
-        except:
-            self.set_new_successor()
-            if self.key != self.successor.key:
-                return self._make_predecessor_request()
-            return None
-        if data['predecessor']:
-            return Node(data['ip'], data['port'])
-        return None
-
     def get_key(self) -> int:
         return self.key
 
@@ -98,6 +84,24 @@ class Node:
                 return None, data['error']
         return None, "Request data None"
 
+    def _slow_successor(self, key: int, start_key: int):
+        url = 'http://{0}:{1}/successor/{2}/{3}'.format(self.successor.ip, self.successor.port, key, start_key)
+        try:
+            print("[Slow] Successor request: {0}".format(url))
+            data = json.loads(requests.get(url).text)
+        except:
+            # Try another successor from the lst
+            self.set_new_successor()
+            return self._slow_successor(key, start_key)
+        if data is not None:
+            if data['successor'] is True:
+                node = Node(data['ip'], data['port'])
+                print('[Slow] Node key returned: {0}'.format(node.key))
+                return node, "[Slow] Success request"
+            if data['successor'] is False:
+                return None, data['error']
+        return None, "[Slow] Request data None"
+
     def find_successor(self, key: int, start_key: int, use_fingers=True):
 
         # Check if the key is between us an our successor.
@@ -110,7 +114,6 @@ class Node:
             if in_interval(self.predecessor.key, self.key, key):
                 return Node(self.ip, self.port), "Self predecessor"
 
-
         # Trying finger tables first if enabled
         if use_fingers:
             finger_result, msg = self._use_fingertable(key, start_key)
@@ -119,12 +122,11 @@ class Node:
 
         # Finger table did not return a result or is not enabled
         # Trying slow method to move forward
-        result = self._make_successor_request(self.successor, key, start_key)
-        if result is None:
-            # Trying a new successor from the list
-            self.set_new_successor() #TODO: correct to do this here?
-            return self.find_successor(key, start_key)
-        return result, "Slow method success"
+        slow_result, msg = self._slow_successor(key, start_key)
+        if slow_result is not None:
+            return slow_result, msg
+
+        return None, "Everything failed (returned None)"
 
     def closest_preceding_finger(self, key):
         print('{1}: Searching finger table for key: {0}'.format(key, self.port))
@@ -165,9 +167,23 @@ class Node:
         self.last_request_key = None
 
         if self.key != self.successor.key:
-            x = self._make_predecessor_request()
+            x = None
+
+            # Request successor for it's predecessor
+            url = 'http://{0}:{1}/predecessor'.format(self.successor.ip, self.successor.port)
+            try:
+                data = json.loads(requests.get(url).text)
+            except:
+                self.set_new_successor()
+                data = None
+
+            if data is not None:
+                if data['predecessor']:
+                    x = Node(data['ip'], data['port'])
+
             if x and in_interval(self.key, self.successor.key, x.key):
                 self.successor = x
+
             url = 'http://{0}:{1}/notify'.format(self.successor.ip, self.successor.port)
             requests.post(url, data={'ip': self.ip, 'port': self.port})  # TODO: perhaps check for answer?
         else:

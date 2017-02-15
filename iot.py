@@ -138,8 +138,11 @@ def search():
     """
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        result_node = node.find_successor(int(request.form.get('key')))
-        output = "{0}:{1}, key={2}".format(result_node.ip, result_node.port, result_node.key)
+        result_node, msg = node.find_successor(int(request.form.get('key')), node.key)
+        if result_node is not None:
+            output = "{0}:{1}, key={2}, msg={3}".format(result_node.ip, result_node.port, result_node.key, msg)
+        else:
+            output = msg
         flash(output, 'success')
         return redirect(url_for('home'))
     join_form = JoinForm()
