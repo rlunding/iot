@@ -24,6 +24,7 @@ class Node:
         self.successor_list = []
         self.finger_table = FingerTable(self.key)
         self.last_request_key = None
+        self.last_request_owner = None
         self.finger_index_update = 0
 
     def _make_successor_request(self, node: 'Node', key: int, start_key: int = None) -> 'Node':
@@ -36,7 +37,6 @@ class Node:
         else:
             url = 'http://{0}:{1}/successor'.format(node.ip, node.port)
         try:
-            print("Successor request: {0}".format(url))
             data = json.loads(requests.get(url).text)
         except:
             return None
@@ -52,10 +52,12 @@ class Node:
         # If we have already seen this request key it means
         # that we are in an endless loop and we need to get out
         # Push the job to our successor
-        if start_key == self.last_request_key:
-            return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(
-                start_key)
-        self.last_request_key = start_key
+        if start_key == self.last_request_owner or key == self.last_request_key:
+            # return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(
+            #    start_key)
+            return None, "Start key {0} same as last request key".format(start_key)
+        self.last_request_key = key
+        self.last_request_owner = start_key
 
         # The key is not in our interval so we forward the request
         # to the best fitting peer in our finger table.
@@ -66,19 +68,20 @@ class Node:
         # forward the call to the successor as we have already
         # verified that we are not done (key is not in our interval)
         if node.key == self.key:
-            return self._make_successor_request(self.successor, key), "Finger table returned own key: {0}".format(
-                node.key)
+            # return self._make_successor_request(self.successor, key), "Finger table returned own key: {0}".format(
+            #    node.key)
+            return None, "Finger table returned own key: {0}".format(node.key)
 
         # Request find_successor on this peer
         url = 'http://{0}:{1}/successor/{2}/{3}'.format(node.ip, node.port, key, start_key)
         try:
-            print("Successor request: {0}".format(url))
+            print("[{1}] Successor request: {0}".format(url, self.port))
             data = json.loads(requests.get(url).text)
         except:
             return None, "Failed Request (except)"
         if data is not None:
             if data['successor'] is True:
-                print('Node key returned: {0}'.format(node.key))
+                print('[{1}] Node key returned: {0}'.format(node.key, self.port))
                 return Node(data['ip'], data['port']), "Success request"
             if data['successor'] is False:
                 return None, data['error']
@@ -87,7 +90,7 @@ class Node:
     def _slow_successor(self, key: int, start_key: int):
         url = 'http://{0}:{1}/successor/{2}/{3}'.format(self.successor.ip, self.successor.port, key, start_key)
         try:
-            print("[Slow] Successor request: {0}".format(url))
+            print("[{1}][Slow] Successor request: {0}".format(url, self.port))
             data = json.loads(requests.get(url).text)
         except:
             # Try another successor from the lst
@@ -96,13 +99,15 @@ class Node:
         if data is not None:
             if data['successor'] is True:
                 node = Node(data['ip'], data['port'])
-                print('[Slow] Node key returned: {0}'.format(node.key))
+                print('[{1}][Slow] Node key returned: {0}'.format(node.key, self.port))
                 return node, "[Slow] Success request"
             if data['successor'] is False:
                 return None, data['error']
         return None, "[Slow] Request data None"
 
     def find_successor(self, key: int, start_key: int, use_fingers=True):
+        msg = ""
+        msg_slow = ""
 
         # Check if the key is between us an our successor.
         # If that is the case we are done and can return the
@@ -122,11 +127,11 @@ class Node:
 
         # Finger table did not return a result or is not enabled
         # Trying slow method to move forward
-        slow_result, msg = self._slow_successor(key, start_key)
+        slow_result, msg_slow = self._slow_successor(key, start_key)
         if slow_result is not None:
-            return slow_result, msg
+            return slow_result, msg_slow + " : " + msg
 
-        return None, "Everything failed (returned None)"
+        return None, "Everything failed (returned None): " + msg_slow + " : " + msg
 
     def closest_preceding_finger(self, key):
         print('{1}: Searching finger table for key: {0}'.format(key, self.port))
@@ -141,12 +146,12 @@ class Node:
         # Join the peer with the id to the chord-network
         self.predecessor = None
         while True:
-            print("Trying to join")
+            print("[{0}] Trying to join: {1}".format(self.port, port))
             self.successor = self._make_successor_request(Node(ip, port), self.key)
             if self.successor is not None:
-                print("Joined")
+                print("[{0}] Joined".format(self.port))
                 break
-            print("Sleeping...")
+            print("[{0}] Sleeping...".format(self.port))
             time.sleep(5)
 
         self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
@@ -165,6 +170,7 @@ class Node:
     def stabilize(self):
         # clear last request key
         self.last_request_key = None
+        self.last_request_owner = None
 
         if self.key != self.successor.key:
             x = None

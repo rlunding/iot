@@ -1,5 +1,6 @@
 import sys
 import random
+import logging
 
 from flask import (
     Flask,
@@ -25,6 +26,9 @@ app.config.from_object(Config())
 
 node = None
 
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 @app.route('/')
 def home():

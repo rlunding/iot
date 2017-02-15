@@ -1,0 +1,282 @@
+5024: Searching finger table for key: 5245
+5024: Found node: 9393 (5019) while searching for 5245
+Successor request: http://127.0.0.1:5019/successor/5245/1149
+5027: Searching finger table for key: 6784
+5027: Found node: 3463 (5024) while searching for 6784
+Successor request: http://127.0.0.1:5024/successor/6784/8592
+Successor request: http://127.0.0.1:5020/successor
+[Slow] Successor request: http://127.0.0.1:5027/successor/5429/7237
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+5027: Searching finger table for key: 7293
+5027: Found node: 3463 (5024) while searching for 7293
+Successor request: http://127.0.0.1:5024/successor/7293/3197
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+Successor request: http://127.0.0.1:5028/successor
+5024: Searching finger table for key: 6777
+Successor request: http://127.0.0.1:5007/successor
+5032: Searching finger table for key: 5034
+5032: Found node: 3142 (5005) while searching for 5034
+[Slow] Successor request: http://127.0.0.1:5032/successor/5038/3187
+[Slow] Successor request: http://127.0.0.1:5013/successor/5245/1149
+Successor request: http://127.0.0.1:5005/successor/5034/6842
+5027: Searching finger table for key: 7751
+5027: Found node: 8592 (5017) while searching for 7751
+Successor request: http://127.0.0.1:5017/successor/7751/9559
+5024: Found node: 9120 (5027) while searching for 6777
+Successor request: http://127.0.0.1:5027/successor/6777/8585
+5027: Searching finger table for key: 5672
+[Slow] Successor request: http://127.0.0.1:5013/successor/4841/6649
+5027: Found node: 3463 (5024) while searching for 5672
+Successor request: http://127.0.0.1:5024/successor/5672/7480
+5024: Searching finger table for key: 6784
+5024: Found node: 9120 (5027) while searching for 6784
+Successor request: http://127.0.0.1:5027/successor/6784/8592
+5024: Searching finger table for key: 7293
+5024: Found node: 9120 (5027) while searching for 7293
+Successor request: http://127.0.0.1:5027/successor/7293/3197
+[Slow] Successor request: http://127.0.0.1:5011/successor/7751/9559
+5005: Searching finger table for key: 5034
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+5032: Searching finger table for key: 5038
+5032: Found node: 3142 (5005) while searching for 5038
+[Slow] Successor request: http://127.0.0.1:5032/successor/5245/1149
+Successor request: http://127.0.0.1:5005/successor/5038/3187
+Successor request: http://127.0.0.1:5003/successor
+5027: Searching finger table for key: 6675
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+Successor request: http://127.0.0.1:5002/successor
+5027: Found node: 3463 (5024) while searching for 6675
+Successor request: http://127.0.0.1:5024/successor/6675/8483
+5005: Found node: 9393 (5019) while searching for 5034
+Successor request: http://127.0.0.1:5019/successor/5034/6842
+[Slow] Successor request: http://127.0.0.1:5032/successor/4841/6649
+5024: Searching finger table for key: 5672
+5024: Found node: 9120 (5027) while searching for 5672
+Successor request: http://127.0.0.1:5027/successor/5672/7480
+5027: Searching finger table for key: 7585
+5027: Found node: 8592 (5017) while searching for 7585
+Successor request: http://127.0.0.1:5017/successor/7585/9393
+[Slow] Successor request: http://127.0.0.1:5012/successor/7751/9559
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+5032: Searching finger table for key: 5245
+5032: Found node: 9104 (5012) while searching for 5245
+5005: Searching finger table for key: 5038
+5005: Found node: 9393 (5019) while searching for 5038
+Successor request: http://127.0.0.1:5019/successor/5038/3187
+5027: Searching finger table for key: 6975
+5024: Searching finger table for key: 6675
+5024: Found node: 9120 (5027) while searching for 6675
+Successor request: http://127.0.0.1:5027/successor/6675/8483
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+[Slow] Successor request: http://127.0.0.1:5013/successor/5034/6842
+Successor request: http://127.0.0.1:5012/successor/5245/1149
+5027: Found node: 3463 (5024) while searching for 6975
+Successor request: http://127.0.0.1:5024/successor/6975/8783
+[Slow] Successor request: http://127.0.0.1:5020/successor/4730/6538
+5032: Searching finger table for key: 4841
+5032: Found node: 3142 (5005) while searching for 4841
+Successor request: http://127.0.0.1:5005/successor/4841/6649
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+[Slow] Successor request: http://127.0.0.1:5011/successor/7585/9393
+5027: Searching finger table for key: 5787
+[Slow] Successor request: http://127.0.0.1:5027/successor/7751/9559
+5027: Found node: 3463 (5024) while searching for 5787
+Successor request: http://127.0.0.1:5024/successor/5787/1691
+5020: Searching finger table for key: 4730
+[Slow] Successor request: http://127.0.0.1:5013/successor/5038/3187
+5020: Found node: 2513 (5008) while searching for 4730
+Successor request: http://127.0.0.1:5008/successor/4730/6538
+[Slow] Successor request: http://127.0.0.1:5032/successor/5034/6842
+5024: Searching finger table for key: 6975
+5024: Found node: 9120 (5027) while searching for 6975
+Successor request: http://127.0.0.1:5027/successor/6975/8783
+5027: Searching finger table for key: 7785
+[Slow] Successor request: http://127.0.0.1:5027/successor/5245/1149
+5005: Searching finger table for key: 4841
+5005: Found node: 9393 (5019) while searching for 4841
+Successor request: http://127.0.0.1:5019/successor/4841/6649
+5027: Found node: 8592 (5017) while searching for 7785
+Successor request: http://127.0.0.1:5017/successor/7785/3689
+5027: Searching finger table for key: 7296
+5027: Found node: 3463 (5024) while searching for 7296
+Successor request: http://127.0.0.1:5024/successor/7296/9104
+5024: Searching finger table for key: 5787
+[Slow] Successor request: http://127.0.0.1:5012/successor/7585/9393
+5024: Found node: 9120 (5027) while searching for 5787
+Successor request: http://127.0.0.1:5027/successor/5787/1691
+5027: Searching finger table for key: 7153
+[Slow] Successor request: http://127.0.0.1:5032/successor/5038/3187
+5008: Searching finger table for key: 4730
+5008: Found node: 9104 (5012) while searching for 4730
+Successor request: http://127.0.0.1:5012/successor/4730/6538
+5027: Found node: 3463 (5024) while searching for 7153
+Successor request: http://127.0.0.1:5024/successor/7153/8961
+5032: Searching finger table for key: 5034
+5032: Found node: 3142 (5005) while searching for 5034
+Successor request: http://127.0.0.1:5005/successor/5034/6842
+5024: Searching finger table for key: 7296
+[Slow] Successor request: http://127.0.0.1:5013/successor/4841/6649
+5024: Found node: 9120 (5027) while searching for 7296
+Successor request: http://127.0.0.1:5027/successor/7296/9104
+5027: Searching finger table for key: 5204
+[Slow] Successor request: http://127.0.0.1:5011/successor/7785/3689
+5027: Found node: 3463 (5024) while searching for 5204
+Successor request: http://127.0.0.1:5024/successor/5204/1108
+5032: Searching finger table for key: 5038
+[Slow] Successor request: http://127.0.0.1:5027/successor/7585/9393
+5032: Found node: 3142 (5005) while searching for 5038
+Successor request: http://127.0.0.1:5005/successor/5038/3187
+5024: Searching finger table for key: 7153
+5024: Found node: 9120 (5027) while searching for 7153
+Successor request: http://127.0.0.1:5027/successor/7153/8961
+5027: Searching finger table for key: 6037
+5027: Found node: 3463 (5024) while searching for 6037
+Successor request: http://127.0.0.1:5024/successor/6037/7845
+[Slow] Successor request: http://127.0.0.1:5027/successor/4730/6538
+5024: Searching finger table for key: 5204
+[Slow] Successor request: http://127.0.0.1:5012/successor/7785/3689
+5005: Searching finger table for key: 5034
+5005: Found node: 9393 (5019) while searching for 5034
+Successor request: http://127.0.0.1:5019/successor/5034/6842
+5024: Found node: 9393 (5019) while searching for 5204
+Successor request: http://127.0.0.1:5019/successor/5204/1108
+5005: Searching finger table for key: 5038
+5027: Searching finger table for key: 5429
+5027: Found node: 3463 (5024) while searching for 5429
+Successor request: http://127.0.0.1:5024/successor/5429/7237
+5005: Found node: 9393 (5019) while searching for 5038
+Successor request: http://127.0.0.1:5019/successor/5038/3187
+5027: Searching finger table for key: 6784
+5024: Searching finger table for key: 6037
+5024: Found node: 9120 (5027) while searching for 6037
+Successor request: http://127.0.0.1:5027/successor/6037/7845
+5027: Found node: 3463 (5024) while searching for 6784
+[Slow] Successor request: http://127.0.0.1:5032/successor/4841/6649
+Successor request: http://127.0.0.1:5024/successor/6784/8592
+[Slow] Successor request: http://127.0.0.1:5013/successor/5034/6842
+5027: Searching finger table for key: 7293
+5027: Found node: 3463 (5024) while searching for 7293
+Successor request: http://127.0.0.1:5024/successor/7293/3197
+5024: Searching finger table for key: 5429
+5024: Found node: 9393 (5019) while searching for 5429
+Successor request: http://127.0.0.1:5019/successor/5429/7237
+5027: Searching finger table for key: 6777
+[Slow] Successor request: http://127.0.0.1:5013/successor/5038/3187
+5027: Found node: 3463 (5024) while searching for 6777
+Successor request: http://127.0.0.1:5024/successor/6777/8585
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /predecessor HTTP/1.1" 200 -
+5032: Searching finger table for key: 4841
+[Slow] Successor request: http://127.0.0.1:5032/successor/5034/6842
+5024: Searching finger table for key: 6784
+5024: Found node: 9120 (5027) while searching for 6784
+5032: Found node: 3142 (5005) while searching for 4841
+Successor request: http://127.0.0.1:5005/successor/4841/6649
+[Slow] Successor request: http://127.0.0.1:5013/successor/5204/1108
+[Slow] Successor request: http://127.0.0.1:5013/successor/5429/7237
+5027: Searching finger table for key: 5672
+Successor request: http://127.0.0.1:5027/successor/6784/8592
+5027: Found node: 3463 (5024) while searching for 5672
+Successor request: http://127.0.0.1:5024/successor/5672/7480
+5024: Searching finger table for key: 7293
+5024: Found node: 9120 (5027) while searching for 7293
+Successor request: http://127.0.0.1:5027/successor/7293/3197
+[Slow] Successor request: http://127.0.0.1:5032/successor/5038/3187
+5005: Searching finger table for key: 4841
+127.0.0.1 - - [15/Feb/2017 11:28:58] "POST /notify HTTP/1.1" 200 -
+5032: Searching finger table for key: 5034
+5032: Found node: 3142 (5005) while searching for 5034
+Successor request: http://127.0.0.1:5005/successor/5034/6842
+Successor request: http://127.0.0.1:5018/successor
+5005: Found node: 9393 (5019) while searching for 4841
+Successor request: http://127.0.0.1:5019/successor/4841/6649
+5027: Searching finger table for key: 6675
+5027: Found node: 3463 (5024) while searching for 6675
+Successor request: http://127.0.0.1:5024/successor/6675/8483
+[Slow] Successor request: http://127.0.0.1:5032/successor/5204/1108
+5024: Searching finger table for key: 6777
+5024: Found node: 9120 (5027) while searching for 6777
+Successor request: http://127.0.0.1:5027/successor/6777/8585
+5032: Searching finger table for key: 5038
+5032: Found node: 3142 (5005) while searching for 5038
+Successor request: http://127.0.0.1:5005/successor/5038/3187
+5027: Searching finger table for key: 7751
+[Slow] Successor request: http://127.0.0.1:5032/successor/5429/7237
+5027: Found node: 8592 (5017) while searching for 7751
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+Successor request: http://127.0.0.1:5037/successor
+Successor request: http://127.0.0.1:5017/successor/7751/9559
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /predecessor HTTP/1.1" 200 -
+5024: Searching finger table for key: 6675
+5024: Found node: 9120 (5027) while searching for 6675
+Successor request: http://127.0.0.1:5027/successor/6675/8483
+5005: Searching finger table for key: 5034
+5005: Found node: 9393 (5019) while searching for 5034
+Successor request: http://127.0.0.1:5019/successor/5034/6842
+5032: Searching finger table for key: 5204
+[Slow] Successor request: http://127.0.0.1:5013/successor/4841/6649
+5027: Searching finger table for key: 6975
+5032: Found node: 9104 (5012) while searching for 5204
+Successor request: http://127.0.0.1:5012/successor/5204/1108
+5027: Found node: 3463 (5024) while searching for 6975
+Successor request: http://127.0.0.1:5024/successor/6975/8783
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+5024: Searching finger table for key: 5672
+5024: Found node: 9120 (5027) while searching for 5672
+Successor request: http://127.0.0.1:5027/successor/5672/7480
+5005: Searching finger table for key: 5038
+5005: Found node: 9393 (5019) while searching for 5038
+Successor request: http://127.0.0.1:5019/successor/5038/3187
+Successor request: http://127.0.0.1:5006/successor
+127.0.0.1 - - [15/Feb/2017 11:28:58] "POST /notify HTTP/1.1" 200 -
+[Slow] Successor request: http://127.0.0.1:5032/successor/4841/6649
+5027: Searching finger table for key: 5245
+5032: Searching finger table for key: 5429
+[Slow] Successor request: http://127.0.0.1:5011/successor/7751/9559
+5032: Found node: 9104 (5012) while searching for 5429
+Successor request: http://127.0.0.1:5012/successor/5429/7237
+5027: Found node: 3463 (5024) while searching for 5245
+[Slow] Successor request: http://127.0.0.1:5013/successor/5034/6842
+Successor request: http://127.0.0.1:5024/successor/5245/1149
+Successor request: http://127.0.0.1:5015/successor
+[Slow] Successor request: http://127.0.0.1:5013/successor/5038/3187
+5027: Searching finger table for key: 5787
+5027: Found node: 3463 (5024) while searching for 5787
+Successor request: http://127.0.0.1:5024/successor/5787/1691
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /successor HTTP/1.1" 200 -
+[Slow] Successor request: http://127.0.0.1:5012/successor/7751/9559
+5032: Searching finger table for key: 4841
+[Slow] Successor request: http://127.0.0.1:5032/successor/5034/6842
+5024: Searching finger table for key: 6975
+5024: Found node: 9120 (5027) while searching for 6975
+Successor request: http://127.0.0.1:5027/successor/6975/8783
+5032: Found node: 3142 (5005) while searching for 4841
+Successor request: http://127.0.0.1:5005/successor/4841/6649
+Successor request: http://127.0.0.1:5024/successor
+5024: Searching finger table for key: 5787
+5024: Found node: 9120 (5027) while searching for 5787
+Successor request: http://127.0.0.1:5027/successor/5787/1691
+5005: Searching finger table for key: 4841
+5005: Found node: 9393 (5019) while searching for 4841
+Successor request: http://127.0.0.1:5019/successor/4841/6649
+127.0.0.1 - - [15/Feb/2017 11:28:58] "GET /predecessor HTTP/1.1" 200 -
+5027: Searching finger table for key: 7296
+5027: Found node: 3463 (5024) while searching for 7296
+Successor request: http://127.0.0.1:5024/successor/7296/9104
+5027: Searching finger table for key: 7585
+5027: Found node: 8592 (5017) while searching for 7585
+Successor request: http://127.0.0.1:5017/successor/7585/9393
+5024: Searching finger table for key: 5245
+5024: Found node: 9393 (5019) while searching for 5245
+Successor request: http://127.0.0.1:5019/successor/5245/1149
+[Slow] Successor request: http://127.0.0.1:5027/successor/7785/3689
+[Slow] Successor request: http://127.0.0.1:5032/successor/5038/3187
+5032: Searching finger table for key: 5034
+5032: Found node: 3142 (5005) while searching for 5034
+Successor request: http://127.0.0.1:5005/successor/5034/6842
+[Slow] Successor request: http://127.0.0.1:5027/successor/5204/1108
+127.0.0.1 - - [15/Feb/2017 11:28:58] "POST /notify HTTP/1.1" 200 -
+5027: Searching finger table for key: 7153
+5027: Found node: 3463 (5024) while searching for 7153
+Successor request: http://127.0.0.1:5024/successor/7153/8961
+[Slow] Successor request: http://127.0.0.1:5013/successor/4841/6649

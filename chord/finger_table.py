@@ -31,3 +31,9 @@ class FingerTable:
                     continue
                 return self.fingers[i]
         return None
+
+    def finger_has_empty_index(self):
+        if None in self.fingers:
+            return True
+        else:
+            return False
