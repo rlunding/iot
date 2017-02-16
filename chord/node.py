@@ -1,7 +1,8 @@
 
 
-from chord.util import encode_address, in_interval
+from chord.util import encode_address, encode_key, in_interval
 from chord.finger_table import FingerTable
+from chord.photon import Photon
 import requests
 import json
 import random
@@ -26,6 +27,7 @@ class Node:
         self.last_request_key = None
         self.last_request_owner = []
         self.finger_index_update = 0
+        self.photons = []
 
     def _make_successor_request(self, node: 'Node', key: int, start_key: int = None) -> 'Node':
         """Make a request to a node go get the successor responsible for a key"""
@@ -105,9 +107,8 @@ class Node:
                 return None, data['error']
         return None, "[Slow] Request data None"
 
-    def find_successor(self, key: int, start_key: int, use_fingers=True):
+    def find_successor(self, key: int, start_key: int, use_fingers=True) -> ('Node', str):
         msg = ""
-        msg_slow = ""
 
         # Check if the key is between us an our successor.
         # If that is the case we are done and can return the
@@ -156,7 +157,8 @@ class Node:
 
         self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
         self.successor_list = []
-        # TODO: add notify
+        self.stabilize()
+        self.get_photons_from_successor()
 
     def leave(self):
         self.predecessor = None
@@ -241,6 +243,44 @@ class Node:
         if self.finger_index_update > self.finger_table.max_i:
             self.finger_index_update = 0
 
+    def request_photon_add(self, photon_id: int) -> bool:
+        node, msg = self.find_successor(encode_key(str(photon_id)), self.key)
+        if node is None:
+            return False
+        if node.key == self.key:
+            self.add_photon(photon_id)
+            return True
+        try:
+            url = 'http://{0}:{1}/add_photon'.format(node.ip, node.port)
+            requests.post(url, data={'photon_id': photon_id})
+            return True
+        except:
+            return False
+
+    def add_photon(self, photon_id: int):
+        photon = Photon(photon_id)
+        self.photons.append(photon)
+        print(self.port, "Adding photon with id: ", photon_id, "and key:", photon.key)
+
+    def get_photons_from_successor(self):
+        url = 'http://{0}:{1}/give_photons'.format(self.successor.ip, self.successor.port)
+        data = json.loads(requests.post(url, data={'key': self.key}).text)
+        print(self.port, "Got the following photons from successor: ", data['photons'])
+        for photon_id in data['photons']:
+            print("Adding: ", photon_id)
+            self.photons.append(Photon(int(photon_id)))
+
+    def give_photons(self, key: int):
+        result = [x.photon_id for x in self.photons if in_interval(self.key, key, x.key)]
+        self.photons = [x for x in self.photons if not in_interval(self.key, key, x.key)]
+
+        print(self.port, "Photons left: ", self.photons)
+        print(self.port, "Giving photons to: ", key, result)
+
+        return result
+
     def __str__(self):
         return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"
 
+    def __repr__(self):
+        return self.__str__()

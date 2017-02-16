@@ -13,8 +13,9 @@ from flask import (
 )
 
 from chord.node import Node
+from chord.util import encode_key
 from config import Config
-from forms import JoinForm, SearchForm
+from forms import JoinForm, SearchForm, AddForm
 from util import get_free_port, parse_docstring
 from concurrent.futures import ThreadPoolExecutor
 from time import sleep
@@ -30,6 +31,7 @@ node = None
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+
 @app.route('/')
 def home():
     """Homepage
@@ -39,10 +41,12 @@ def home():
     :returns: html page with node information
     """
     join_form = JoinForm()
+    add_form = AddForm()
     search_form = SearchForm()
     return render_template('home.html',
                            node=node,
                            join_form=join_form,
+                           add_form=add_form,
                            search_form=search_form)
 
 
@@ -135,10 +139,46 @@ def join():
         flash('Successfully join network', 'success')
         return redirect(url_for('home'))
     search_form = SearchForm()
+    add_form = AddForm()
     return render_template('home.html',
                            node=node,
                            join_form=join_form,
+                           add_form=add_form,
                            search_form=search_form)
+
+
+@app.route('/request_add_photon', methods=['POST'])
+def request_add_photon():
+    add_form = AddForm()
+    if add_form.validate_on_submit():
+        photon_id = request.form.get('photon_id')
+        if node.request_photon_add(photon_id):
+            key = encode_key(photon_id)
+            flash('Successfully added photon to the network, with key: '+str(key), 'success')
+        else:
+            flash('Failed to add photon to the network', 'danger')
+        return redirect(url_for('home'))
+    join_form = JoinForm()
+    search_form = SearchForm()
+    return render_template('home.html',
+                           node=node,
+                           join_form=join_form,
+                           add_form=add_form,
+                           search_form=search_form)
+
+
+@app.route('/add_photon', methods=['POST'])
+def add_photon():
+    photon_id = request.form.get('photon_id')
+    node.add_photon(photon_id)
+    return jsonify({'success': True})
+
+
+@app.route('/give_photons', methods=['POST'])
+def give_photons():
+    key = int(request.form.get('key'))
+    result = node.give_photons(key)
+    return jsonify({'photons': result})
 
 
 @app.route('/search', methods=['POST'])
@@ -160,9 +200,11 @@ def search():
         flash(output, 'success')
         return redirect(url_for('home'))
     join_form = JoinForm()
+    add_form = AddForm()
     return render_template('home.html',
                            node=node,
                            join_form=join_form,
+                           add_form=add_form,
                            search_form=search_form)
 
 

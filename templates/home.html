@@ -78,8 +78,32 @@
                     </table>
                 </div>
                 <div class="col-sm-6">
-                    {{ render_form(url_for('join'), join_form, legend='Join peer') }}
+                    <p>Photons:</p>
+                    {% if node.photons|length > 0 %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Key</th>
+                                    <th>Light value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for photon in node.photons %}
+                                    <tr>
+                                        <td>{{ photon.photon_id }}</td>
+                                        <td>{{ photon.key }}</td>
+                                        <td>{{ photon.get_light_value() }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        EMPTY
+                    {% endif %}
+                    {{ render_form(url_for('request_add_photon'), add_form, legend='Add Photon') }}
                     {{ render_form(url_for('search'), search_form, legend='Search') }}
+                    {{ render_form(url_for('join'), join_form, legend='Join peer') }}
                 </div>
             </div>
         </div>

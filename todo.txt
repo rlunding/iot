@@ -5,3 +5,10 @@ Lav link direkte når man søger efter key
 
 Overvej hvad der sker når en peer leaver. Og hvad der kan ske ved at fjerne en peer der
 bare retunerer "None" (dette kan godt ske selvom en peer ikke er forsvundet)
+
+Ved join: spørg om finger-table fra predecessor
+
+### Milestone 3 ###
+ - Få Photon til at virke.
+ - Assign photon til node
+ - Lad en node vise data fra photon hvis ansvarlig
