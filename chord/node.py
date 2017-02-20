@@ -23,6 +23,7 @@ class Node:
         self.successor = None
         self.predecessor = None
         self.successor_list = []
+        self.successor_list_index_update = 0
         self.finger_table = FingerTable(self.key)
         self.last_request_key = None
         self.last_request_owner = []
@@ -155,7 +156,7 @@ class Node:
             print("[{0}] Sleeping...".format(self.port))
             time.sleep(5)
 
-        self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
+        self.finger_table.update_finger(0, self.successor)
         self.successor_list = []
         self.stabilize()
         self.get_photons_from_successor()
@@ -198,23 +199,27 @@ class Node:
             if self.predecessor and in_interval(self.key, self.successor.key, self.predecessor.key):
                 self.successor = self.predecessor
             self.notify(self)
-        self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
+        self.finger_table.update_finger(0, self.successor)
 
     def update_successor_list(self):
-        self.successor_list = [] # TODO: bug, perhaps don't delete the list completely
+        new_successor_list = []
         succ = self.successor
         for i in range(0, SUCCESSOR_LIST_SIZE):
             if self.key == succ.key:
                 break
             result = self._make_successor_request(succ, None)
+            if result is None and succ == self.successor:
+                self.set_new_successor()
+                succ = self.successor
             if result and self.key != result.key:
-                self.successor_list.append(result)
+                new_successor_list.append(result)
                 succ = result
+        self.successor_list = new_successor_list
 
     def set_new_successor(self):
         if len(self.successor_list) > 0:
             self.successor = self.successor_list.pop(0)
-            self.finger_table.update_finger(0, self.successor)  # TODO: perhaps not ideal
+            self.finger_table.update_finger(0, self.successor)
         else:
             self.leave()
 
