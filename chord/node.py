@@ -51,14 +51,14 @@ class Node:
     def get_key(self) -> int:
         return self.key
 
-    def _use_fingertable(self, key: int, start_key: int):
+    def _use_fingertable(self, key: int, start_key: int, count: int):
         # If we have already seen this request key it means
         # that we are in an endless loop and we need to get out
         # Push the job to our successor
         if start_key in self.last_request_owner or key == self.last_request_key:
             # return self._make_successor_request(self.successor, key), "Start key {0} same as last request key".format(
             #    start_key)
-            return None, "Start key {0} same as last request key".format(start_key)
+            return None, "Start key {0} same as last request key".format(start_key), count
         self.last_request_key = key
         self.last_request_owner.append(start_key)
 
@@ -73,10 +73,10 @@ class Node:
         if node.key == self.key:
             # return self._make_successor_request(self.successor, key), "Finger table returned own key: {0}".format(
             #    node.key)
-            return None, "Finger table returned own key: {0}".format(node.key)
+            return None, "Finger table returned own key: {0}".format(node.key), count
 
         # Request find_successor on this peer
-        url = 'http://{0}:{1}/successor/{2}/{3}'.format(node.ip, node.port, key, start_key)
+        url = 'http://{0}:{1}/successor/{2}/{3}/{4}'.format(node.ip, node.port, key, start_key, count+1)
         try:
             print("[{1}] Successor request: {0}".format(url, self.port))
             data = json.loads(requests.get(url).text)
@@ -85,13 +85,13 @@ class Node:
         if data is not None:
             if data['successor'] is True:
                 print('[{1}] Node key returned: {0}'.format(node.key, self.port))
-                return Node(data['ip'], data['port']), "Success request"
+                return Node(data['ip'], data['port']), "Success request", data['count']
             if data['successor'] is False:
-                return None, data['error']
-        return None, "Request data None"
+                return None, data['error'], count
+        return None, "Request data None", count
 
-    def _slow_successor(self, key: int, start_key: int):
-        url = 'http://{0}:{1}/successor/{2}/{3}'.format(self.successor.ip, self.successor.port, key, start_key)
+    def _slow_successor(self, key: int, start_key: int, count: int):
+        url = 'http://{0}:{1}/successor/{2}/{3}/{4}'.format(self.successor.ip, self.successor.port, key, start_key, count+1)
         try:
             print("[{1}][Slow] Successor request: {0}".format(url, self.port))
             data = json.loads(requests.get(url).text)
@@ -103,37 +103,37 @@ class Node:
             if data['successor'] is True:
                 node = Node(data['ip'], data['port'])
                 print('[{1}][Slow] Node key returned: {0}'.format(node.key, self.port))
-                return node, "[Slow] Success request"
+                return node, "[Slow] Success request", data['count']
             if data['successor'] is False:
-                return None, data['error']
-        return None, "[Slow] Request data None"
+                return None, data['error'], count
+        return None, "[Slow] Request data None", count
 
-    def find_successor(self, key: int, start_key: int, use_fingers=True) -> ('Node', str):
+    def find_successor(self, key: int, start_key: int, count: int=0, use_fingers=True) -> ('Node', str):
         msg = ""
 
         # Check if the key is between us an our successor.
         # If that is the case we are done and can return the
         # successor.
         if in_interval(self.key, self.successor.key, key):
-            return self.successor, "Self successor"
+            return self.successor, "Found using self successor", count
         # Also check the predecessor
         if self.predecessor is not None:
             if in_interval(self.predecessor.key, self.key, key):
-                return Node(self.ip, self.port), "Self predecessor"
+                return Node(self.ip, self.port), "Found using self predecessor", count
 
         # Trying finger tables first if enabled
         if use_fingers:
-            finger_result, msg = self._use_fingertable(key, start_key)
+            finger_result, msg, finger_count = self._use_fingertable(key, start_key, count)
             if finger_result is not None:
-                return finger_result, msg
+                return finger_result, msg, finger_count
 
         # Finger table did not return a result or is not enabled
         # Trying slow method to move forward
-        slow_result, msg_slow = self._slow_successor(key, start_key)
+        slow_result, msg_slow, slow_count = self._slow_successor(key, start_key, count)
         if slow_result is not None:
-            return slow_result, msg_slow + " : " + msg
+            return slow_result, msg_slow + " : " + msg, slow_count
 
-        return None, "Everything failed (returned None): " + msg_slow + " : " + msg
+        return None, "Everything failed (returned None): " + msg_slow + " : " + msg, count
 
     def closest_preceding_finger(self, key):
         print('{1}: Searching finger table for key: {0}'.format(key, self.port))
@@ -235,7 +235,7 @@ class Node:
         inc_prob = random.randint(0, 10)
 
         i = self.finger_index_update
-        node, msg = self.find_successor(self.finger_table.keys[i], self.key) # Find correct successor
+        node, msg, count = self.find_successor(self.finger_table.keys[i], self.key) # Find correct successor
         if node is not None:
                         self.finger_table.update_finger(i, node) # Update finger table
                         self.finger_index_update = i+1
@@ -249,7 +249,7 @@ class Node:
             self.finger_index_update = 0
 
     def request_photon_add(self, photon_id: str) -> bool:
-        node, msg = self.find_successor(encode_key(photon_id), self.key)
+        node, msg, count = self.find_successor(encode_key(photon_id), self.key)
         if node is None:
             return False
         if node.key == self.key:

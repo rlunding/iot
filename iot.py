@@ -80,7 +80,7 @@ def predecessor():
     return jsonify({'predecessor': False})
 
 
-@app.route('/successor/<int:key>/<int:start_key>', methods=['GET'])
+@app.route('/successor/<int:key>/<int:start_key>/', methods=['GET'])
 def find_successor(key, start_key):
     """Successor for a key
 
@@ -95,13 +95,40 @@ def find_successor(key, start_key):
     if node.key == start_key:
         return jsonify({'successor': False, 'error': 'node.key == start key == {0}'.format(start_key)})
 
-    successor_node, msg = node.find_successor(key, start_key)
+    successor_node, msg, count = node.find_successor(key, start_key)
     if successor_node:
         return jsonify({'successor': True,
                         'key': successor_node.key,
                         'ip': successor_node.ip,
                         'port': successor_node.port,
-                        'msg': msg})
+                        'msg': msg,
+                        'count': count})
+    return jsonify({'successor': False, 'error': msg})
+
+
+@app.route('/successor/<int:key>/<int:start_key>/<int:count>', methods=['GET'])
+def find_successor_counting(key, start_key, count):
+    """Successor for a key
+
+    Return the node responsible for a given key.
+
+    :param key: they key to search for
+    :param start_key: key for peer starting the request
+    :returns: {'successor': true, 'key': successor.key, 'ip': successor.ip, 'port': successor.port,
+    'msg': message explaining the request } if success,
+    otherwise {'successor': false, 'error': error message}
+    """
+    if node.key == start_key:
+        return jsonify({'successor': False, 'error': 'node.key == start key == {0}'.format(start_key)})
+
+    successor_node, msg, count = node.find_successor(key, start_key, count)
+    if successor_node:
+        return jsonify({'successor': True,
+                        'key': successor_node.key,
+                        'ip': successor_node.ip,
+                        'port': successor_node.port,
+                        'msg': msg,
+                        'count': count})
     return jsonify({'successor': False, 'error': msg})
 
 
@@ -192,9 +219,9 @@ def search():
     """
     search_form = SearchForm()
     if search_form.validate_on_submit():
-        result_node, msg = node.find_successor(int(request.form.get('key')), node.key)
+        result_node, msg, count = node.find_successor(int(request.form.get('key')), node.key)
         if result_node is not None:
-            output = "{0}:{1}, key={2}, msg={3}".format(result_node.ip, result_node.port, result_node.key, msg)
+            output = "{0}:{1}, key={2}, msg={3}, hop count = {4}".format(result_node.ip, result_node.port, result_node.key, msg, count)
         else:
             output = msg
         flash(output, 'success')
