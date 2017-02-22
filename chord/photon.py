@@ -11,9 +11,12 @@ class Photon:
         self.key = encode_key(photon_id)
 
     def get_light_value(self) -> str:
-        url = "https://api.particle.io/v1/devices/{0}/analogvalue?access_token=8239b3935d2f4c43fef1ba2a03c1112a2ea1f1ec".format(self.photon_id)
-        data = json.loads(requests.get(url).text)
-        return str(data['result'])
+        try:
+            url = "https://api.particle.io/v1/devices/{0}/analogvalue?access_token=8239b3935d2f4c43fef1ba2a03c1112a2ea1f1ec".format(self.photon_id)
+            data = json.loads(requests.get(url).text)
+            return str(data['result'])
+        except:
+            return "None"
 
     def __str__(self):
         return "(id: " + self.photon_id + ", key:" + str(self.key) + ")"

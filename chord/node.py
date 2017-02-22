@@ -249,7 +249,7 @@ class Node:
             self.finger_index_update = 0
 
     def request_photon_add(self, photon_id: str) -> bool:
-        node, msg = self.find_successor(encode_key(str(photon_id)), self.key)
+        node, msg = self.find_successor(encode_key(photon_id), self.key)
         if node is None:
             return False
         if node.key == self.key:
