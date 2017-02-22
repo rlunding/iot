@@ -18,7 +18,7 @@ class JoinForm(Form):
 
 
 class AddForm(Form):
-    photon_id = IntegerField('Photon id', validators=[DataRequired()])
+    photon_id = StringField('Photon id', default='170030000f47353138383138', validators=[DataRequired()])
     add = SubmitField('Add')
 
 

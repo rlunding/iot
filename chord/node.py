@@ -248,7 +248,7 @@ class Node:
         if self.finger_index_update > self.finger_table.max_i:
             self.finger_index_update = 0
 
-    def request_photon_add(self, photon_id: int) -> bool:
+    def request_photon_add(self, photon_id: str) -> bool:
         node, msg = self.find_successor(encode_key(str(photon_id)), self.key)
         if node is None:
             return False
@@ -262,7 +262,7 @@ class Node:
         except:
             return False
 
-    def add_photon(self, photon_id: int):
+    def add_photon(self, photon_id: str):
         photon = Photon(photon_id)
         self.photons.append(photon)
         print(self.port, "Adding photon with id: ", photon_id, "and key:", photon.key)
@@ -273,7 +273,7 @@ class Node:
         print(self.port, "Got the following photons from successor: ", data['photons'])
         for photon_id in data['photons']:
             print("Adding: ", photon_id)
-            self.photons.append(Photon(int(photon_id)))
+            self.photons.append(Photon(photon_id))
 
     def give_photons(self, key: int):
         result = [x.photon_id for x in self.photons if in_interval(self.key, key, x.key)]
