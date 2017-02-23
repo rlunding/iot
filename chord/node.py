@@ -324,6 +324,12 @@ class Node:
                 pass
         pass
 
+    def check_backups(self):
+        # Loop though all photon_backups
+        # Check if: backup.node.key == self.successor.key
+        # Add new backups if needed
+        pass
+
     def __str__(self):
         return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"
 
