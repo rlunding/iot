@@ -3,10 +3,12 @@
 from chord.util import encode_address, encode_key, in_interval
 from chord.finger_table import FingerTable
 from chord.photon import Photon
+from datetime import datetime
 import requests
 import json
 import random
 import time
+import sqlite3 as sql
 
 from config import INTERVAL, SUCCESSOR_LIST_SIZE
 
@@ -283,6 +285,17 @@ class Node:
         print(self.port, "Giving photons to: ", key, result)
 
         return result
+
+    def collect_data(self):
+        now = datetime.now()
+        con = sql.connect('data/' + str(self.port) + '.db')
+
+        for photon in self.photons:
+            value = photon.pull_light_value()
+            if value is not "None":
+                con.execute("INSERT INTO measurement (date, id, data) VALUES (?,?,?)", (now, photon.key, int(value)))
+        con.commit()
+        con.close()
 
     def __str__(self):
         return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"

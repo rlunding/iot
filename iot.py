@@ -1,6 +1,7 @@
 import sys
 import random
 import logging
+import sqlite3 as sql
 
 from flask import (
     Flask,
@@ -275,6 +276,7 @@ def stabilize():
     node.update_successor_list()
     node.check_predecessor()
     node.fix_fingers()
+    node.collect_data()
     sleep(2 + random.uniform(0, 2))
     executor.submit(stabilize)
 
@@ -298,6 +300,11 @@ if __name__ == '__main__':
         node.join(host, join_port)
 
     executor.submit(stabilize)
+
+    con = sql.connect('data/'+str(port)+'.db')
+    con.execute('DROP TABLE IF EXISTS measurement')
+    con.execute('CREATE TABLE measurement (date TEXT, id TEXT, data INTEGER )')
+    con.close()
 
     #app.config['SERVER_NAME'] = host + ":" + str(port)
     app.run(host=host, port=port, threaded=True)

@@ -93,7 +93,7 @@
                                     <tr>
                                         <td>{{ photon.photon_id }}</td>
                                         <td>{{ photon.key }}</td>
-                                        <td>{{ photon.get_light_value() }}</td>
+                                        <td>{{ photon.get_light_value(node.port) }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

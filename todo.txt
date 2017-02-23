@@ -4,3 +4,7 @@ Overvej hvad der sker når en peer leaver. Og hvad der kan ske ved at fjerne en 
 bare retunerer "None" (dette kan godt ske selvom en peer ikke er forsvundet)
 
 Ved join: spørg om finger-table fra predecessor
+
+
+### Backlog ###
+(REST-fullness?) - f.eks. /api
