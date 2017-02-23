@@ -2,7 +2,7 @@
 
 from chord.util import encode_address, encode_key, in_interval
 from chord.finger_table import FingerTable
-from chord.photon import Photon
+from chord.photon import Photon, PhotonBackup
 from datetime import datetime
 import requests
 import json
@@ -31,6 +31,7 @@ class Node:
         self.last_request_owner = []
         self.finger_index_update = 0
         self.photons = []
+        self.photon_backup = []
 
     def _make_successor_request(self, node: 'Node', key: int, start_key: int = None) -> 'Node':
         """Make a request to a node go get the successor responsible for a key"""
@@ -296,6 +297,32 @@ class Node:
                 con.execute("INSERT INTO measurement (date, id, data) VALUES (?,?,?)", (now, photon.key, int(value)))
         con.commit()
         con.close()
+
+    def add_backup(self, master_node: 'Node', photon):
+        # TODO: how to represent backup
+        pass
+
+    def get_latest_data(self, photon_key: int, last_request: str, request_id: int):
+        if request_id != self.successor.key: # check if requester is backup
+            return None, 'Not backup'
+        for photon in self.photons:
+            if photon.key == photon_key: # find photon
+                return photon.get_latest_light_values(self.port, last_request), 'success'
+        return None, 'No photons with that id'
+
+    def poll_data(self):
+        # run through backup list
+            # Get new data
+            # Backoff or become master if needed
+        for backup in self.photon_backup:
+            try:
+                url = 'http://{0}:{1}/get_latest_photon'.format(backup.node.ip, backup.node.port)
+                params = {'photon_key': backup.photon_key, 'last_request': backup.get_last_poll(self.port), 'request_id': self.key}
+                data = json.loads(requests.get(url, params=params).text)
+            except:
+                # TODO: make master
+                pass
+        pass
 
     def __str__(self):
         return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"

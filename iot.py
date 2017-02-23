@@ -209,6 +209,31 @@ def give_photons():
     return jsonify({'photons': result})
 
 
+@app.route('/add_backup', methods=['POST'])
+def add_backup():
+    master_ip = request.form.get('ip')
+    master_port = request.form.get('port')
+    photon_id = request.form.get('photon_id')
+    node.add_backup(Node(master_ip, master_port), photon_id)
+    return jsonify({'success': True})
+
+
+@app.route('/get_latest_data', methods=['GET'])
+def get_latest_data():
+    if request.args.get('last_request') is None or \
+            request.args.get('photon_key') is None or \
+            request.args.get('request_id') is None:
+        return jsonify({'success': False, 'msg': 'Invalid arguments'})
+
+    photon_key = int(request.args.get('photon_key'))
+    last_request = request.args.get('last_request')
+    request_id = int(request.args.get('request_id'))
+    data, response = node.get_latest_data(photon_key, last_request, request_id)
+    if data:
+        return jsonify({'success': True, 'msg': data})
+    return jsonify({'success': False, 'msg': response})
+
+
 @app.route('/search', methods=['POST'])
 def search():
     """Search
