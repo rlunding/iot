@@ -282,7 +282,7 @@ class Node:
             try:
                 # Get data from photon master
                 result = self.poll_data_request(self.successor.ip, self.successor.port, photon.key, PhotonBackup(photon_id, None).get_last_poll(self.port))
-                print(result['msg'])
+                print('Data from successor: {0}'.format(result['msg']))
                 self.poll_data_to_db(result)
             except Exception as e:
                 print(e)
@@ -305,6 +305,7 @@ class Node:
             value = photon.pull_light_value()
             if value is not "None":
                 con.execute("INSERT INTO measurement (date, id, data) VALUES (?,?,?)", (now, photon.key, int(value)))
+                print('Collected data value from photon:{0}'.format(value))
         con.commit()
         con.close()
 
@@ -338,6 +339,9 @@ class Node:
         con = sql.connect('data/' + str(self.port) + '.db')
         for data_row in json.loads(data['msg']):
             print(data_row)
+            print(data_row['date'])
+            print(data_row['id'])
+            print(data_row['data'])
             con.execute("INSERT INTO measurement (date, id, data) VALUES (?,?,?)",
                         (data_row['date'], data_row['id'], data_row['data']))
         con.commit()
@@ -349,23 +353,28 @@ class Node:
             # Backoff or become master if needed
         for backup in list(self.photon_backup):
             try:
-                # url = 'http://{0}:{1}/get_latest_data'.format(backup.node.ip, backup.node.port)
-                # params = {'photon_key': backup.photon_key, 'last_request': backup.get_last_poll(self.port), 'request_id': self.key}
-                # data = json.loads(requests.get(url, params=params).text)
                 data = self.poll_data_request(backup.node.ip, backup.node.port, backup.photon_key, backup.get_last_poll(self.port))
 
                 if data['is_backup'] is False:
                     self.photon_backup.remove(backup)
                     continue
 
-                print(data['msg'])
                 self.poll_data_to_db(data)
 
             except Exception as e:
-                # TODO: make master
                 print(e)
+                # TODO: make master
+                print('[{0}] TAKING OVER PHOTON KEY: {1}. IM THE MASTER NOW.'.format(self.port, backup.photon_key))
+                self.add_photon(backup.photon_id)
+                self.photon_backup.remove(backup)
 
-
+    def get_photon_data(self, photon_key: int):
+        for photon in self.photons:
+            if photon.key == photon_key:
+                values = photon.get_latest_light_values(self.port, "0")
+                print(values)
+                return values
+        return None
 
     def check_backups(self):
         # Loop though all photon_backups

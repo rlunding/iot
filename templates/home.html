@@ -92,7 +92,7 @@
                                 {% for photon in node.photons %}
                                     <tr>
                                         <td>{{ photon.photon_id }}</td>
-                                        <td>{{ photon.key }}</td>
+                                        <td><a href="http://{{ node.ip }}:{{ node.port }}/photon/{{ photon.key }}/graph" target="_blank">{{ photon.key }}</a></td>
                                         <td>{{ photon.get_light_value(node.port) }}</td>
                                     </tr>
                                 {% endfor %}

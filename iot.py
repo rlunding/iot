@@ -2,6 +2,7 @@ import sys
 import random
 import logging
 import sqlite3 as sql
+import json
 
 from flask import (
     Flask,
@@ -233,6 +234,23 @@ def get_latest_data():
     return jsonify({'success': True, 'is_backup': is_backup, 'msg': data})
 
 
+@app.route('/photon/<int:key>', methods=['GET'])
+def get_photon_data(key: int):
+    result = node.get_photon_data(key)
+    if result is None:
+        return jsonify({'success': False, 'msg': 'No data for this photon key'})
+    return jsonify({'success': True, 'msg': result})
+
+@app.route('/photon/<int:key>/graph', methods=['GET'])
+def get_photon_graph(key: int):
+    result = node.get_photon_data(key)
+    if result is None:
+        return jsonify({'success': False, 'msg': 'No data for this photon key'})
+    return render_template('photon_graph.html',
+                           node=node,
+                           data=json.loads(result))
+
+
 @app.route('/search', methods=['POST'])
 def search():
     """Search
@@ -318,6 +336,11 @@ if __name__ == '__main__':
     if port is None:
         port = get_free_port()
 
+    # Clear database
+    con = sql.connect('data/' + str(port) + '.db')
+    con.execute('DROP TABLE IF EXISTS measurement')
+    con.execute('CREATE TABLE measurement (date TEXT, id TEXT, data INTEGER )')
+    con.close()
 
     node = Node(host, port)
     node.successor = node
@@ -326,11 +349,6 @@ if __name__ == '__main__':
         node.join(host, join_port)
 
     executor.submit(stabilize)
-
-    con = sql.connect('data/'+str(port)+'.db')
-    con.execute('DROP TABLE IF EXISTS measurement')
-    con.execute('CREATE TABLE measurement (date TEXT, id TEXT, data INTEGER )')
-    con.close()
 
     #app.config['SERVER_NAME'] = host + ":" + str(port)
     app.run(host=host, port=port, threaded=True)
