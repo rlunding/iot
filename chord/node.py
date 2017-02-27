@@ -276,7 +276,17 @@ class Node:
         print(self.port, "Got the following photons from successor: ", data['photons'])
         for photon_id in data['photons']:
             print("Adding: ", photon_id)
-            self.photons.append(Photon(photon_id))
+            photon = Photon(photon_id)
+            self.photons.append(photon)
+
+            try:
+                # Get data from photon master
+                result = self.poll_data_request(self.successor.ip, self.successor.port, photon.key, PhotonBackup(photon_id, None).get_last_poll(self.port))
+                print(result['msg'])
+                self.poll_data_to_db(result)
+            except Exception as e:
+                print(e)
+
 
     def give_photons(self, key: int):
         result = [x.photon_id for x in self.photons if in_interval(self.key, key, x.key)]
@@ -298,37 +308,81 @@ class Node:
         con.commit()
         con.close()
 
-    def add_backup(self, master_node: 'Node', photon):
-        # TODO: how to represent backup
-        pass
+    def add_backup(self, master_node: 'Node', photon_id: str):
+        self.photon_backup.append(PhotonBackup(photon_id, master_node))
 
     def get_latest_data(self, photon_key: int, last_request: str, request_id: int):
-        if request_id != self.successor.key: # check if requester is backup
-            return None, 'Not backup'
-        for photon in self.photons:
-            if photon.key == photon_key: # find photon
-                return photon.get_latest_light_values(self.port, last_request), 'success'
-        return None, 'No photons with that id'
+        is_backup = False
+        con = sql.connect('data/' + str(self.port) + '.db')
+        con.row_factory = sql.Row  # This enables column access by name: row['column_name']
+        db = con.cursor()
+        rows = db.execute("SELECT * FROM measurement WHERE id = ? AND date > ?", [photon_key, last_request]).fetchall()
+        con.commit()
+        con.close()
+        result = json.dumps([dict(x) for x in rows])
+
+        if request_id == self.successor.key:
+            for photon in self.photons:
+                if photon_key == photon.key:
+                    is_backup = True
+
+        return is_backup, result
+
+    def poll_data_request(self, ip, port, photon_key, last_request):
+        url = 'http://{0}:{1}/get_latest_data'.format(ip, port)
+        params = {'photon_key': photon_key, 'last_request': last_request,
+                  'request_id': self.key}
+        return json.loads(requests.get(url, params=params).text)
+
+    def poll_data_to_db(self, data):
+        con = sql.connect('data/' + str(self.port) + '.db')
+        for data_row in json.loads(data['msg']):
+            print(data_row)
+            con.execute("INSERT INTO measurement (date, id, data) VALUES (?,?,?)",
+                        (data_row['date'], data_row['id'], data_row['data']))
+        con.commit()
+        con.close()
 
     def poll_data(self):
         # run through backup list
             # Get new data
             # Backoff or become master if needed
-        for backup in self.photon_backup:
+        for backup in list(self.photon_backup):
             try:
-                url = 'http://{0}:{1}/get_latest_photon'.format(backup.node.ip, backup.node.port)
-                params = {'photon_key': backup.photon_key, 'last_request': backup.get_last_poll(self.port), 'request_id': self.key}
-                data = json.loads(requests.get(url, params=params).text)
-            except:
+                # url = 'http://{0}:{1}/get_latest_data'.format(backup.node.ip, backup.node.port)
+                # params = {'photon_key': backup.photon_key, 'last_request': backup.get_last_poll(self.port), 'request_id': self.key}
+                # data = json.loads(requests.get(url, params=params).text)
+                data = self.poll_data_request(backup.node.ip, backup.node.port, backup.photon_key, backup.get_last_poll(self.port))
+
+                if data['is_backup'] is False:
+                    self.photon_backup.remove(backup)
+                    continue
+
+                print(data['msg'])
+                self.poll_data_to_db(data)
+
+            except Exception as e:
                 # TODO: make master
-                pass
-        pass
+                print(e)
+
+
 
     def check_backups(self):
         # Loop though all photon_backups
         # Check if: backup.node.key == self.successor.key
         # Add new backups if needed
-        pass
+        if self.key == self.successor.key:
+            return
+        for photon in self.photons:
+            if photon.backup_node_key == self.successor.key:
+                continue
+            # Add backup
+            try:
+                url = 'http://{0}:{1}/add_backup'.format(self.successor.ip, self.successor.port)
+                requests.post(url, data={'ip': self.ip, 'port': self.port, 'photon_id': photon.photon_id})
+                photon.backup_node_key = self.successor.key
+            except:
+                photon.backup_node_key = None
 
     def __str__(self):
         return "(" + self.ip + ":" + str(self.port) + ", " + str(self.key) + ")"

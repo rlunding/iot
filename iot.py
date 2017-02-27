@@ -228,10 +228,9 @@ def get_latest_data():
     photon_key = int(request.args.get('photon_key'))
     last_request = request.args.get('last_request')
     request_id = int(request.args.get('request_id'))
-    data, response = node.get_latest_data(photon_key, last_request, request_id)
-    if data:
-        return jsonify({'success': True, 'msg': data})
-    return jsonify({'success': False, 'msg': response})
+    is_backup, data = node.get_latest_data(photon_key, last_request, request_id)
+
+    return jsonify({'success': True, 'is_backup': is_backup, 'msg': data})
 
 
 @app.route('/search', methods=['POST'])
@@ -302,6 +301,8 @@ def stabilize():
     node.check_predecessor()
     node.fix_fingers()
     node.collect_data()
+    node.poll_data()
+    node.check_backups()
     sleep(2 + random.uniform(0, 2))
     executor.submit(stabilize)
 

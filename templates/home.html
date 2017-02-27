@@ -101,6 +101,29 @@
                     {% else %}
                         EMPTY
                     {% endif %}
+                <p>Photon backups:</p>
+                    {% if node.photon_backup|length > 0 %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Key</th>
+                                    <th>Backup's key</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for photon in node.photon_backup %}
+                                    <tr>
+                                        <td>{{ photon.photon_id }}</td>
+                                        <td>{{ photon.photon_key }}</td>
+                                        <td>{{ photon.node.key }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        EMPTY
+                    {% endif %}
                     {{ render_form(url_for('request_add_photon'), add_form, legend='Add Photon') }}
                     {{ render_form(url_for('search'), search_form, legend='Search') }}
                     {{ render_form(url_for('join'), join_form, legend='Join peer') }}

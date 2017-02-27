@@ -10,6 +10,8 @@ class Photon:
     def __init__(self, photon_id: str):
         self.photon_id = photon_id
         self.key = encode_key(photon_id)
+        self.backup_node_key = None
+
 
     def get_light_value(self, port: int) -> str:
         con = sql.connect('data/' + str(port) + '.db')
@@ -30,8 +32,6 @@ class Photon:
         rows = db.execute("SELECT * FROM measurement WHERE id = ? AND date > ?", [self.key, last_request]).fetchall()
         con.commit()
         con.close()
-        print(rows)
-        print(json.dumps([dict(x) for x in rows]))
         return json.dumps([dict(x) for x in rows])
 
     def pull_light_value(self) -> str:
@@ -58,7 +58,7 @@ class PhotonBackup:
 
     def get_last_poll(self, port):
         con = sql.connect('data/' + str(port) + '.db')
-        cur = con.execute("SELECT * FROM measurement WHERE id = ?  ORDER BY date DESC", [self.key])
+        cur = con.execute("SELECT * FROM measurement WHERE id = ?  ORDER BY date DESC", [self.photon_key])
         rv = cur.fetchone()
         print(rv)
         try:
