@@ -158,7 +158,7 @@ def join():
 
     :param ip: the ip-address of the node which should be joined.
     :param port: the port of the node which should be joined.
-    :return: html page with node information, possible also with errors if the input is invalid.
+    :returns: html page with node information, possible also with errors if the input is invalid.
     """
     join_form = JoinForm()
     if join_form.validate_on_submit():
@@ -178,6 +178,15 @@ def join():
 
 @app.route('/request_add_photon', methods=['POST'])
 def request_add_photon():
+    """Request add photon
+
+    This endpoint will make the node search for the appropriate node of which
+    the photon should be added to. If such a node is found without any error,
+    the photon will be added to it.
+
+    :param photon_id: the particle-io id of the photon that should be added to the network.
+    :returns: html page with node information, and information about the operation.
+    """
     add_form = AddForm()
     if add_form.validate_on_submit():
         photon_id = request.form.get('photon_id')
@@ -198,6 +207,13 @@ def request_add_photon():
 
 @app.route('/add_photon', methods=['POST'])
 def add_photon():
+    """Add photon
+
+    Add a photon to the node. It is only intended that this endpoint is used by other nodes and not by users.
+
+    :param photon_id: the particle-io id of the photon that should be added to the network.
+    :returns: {'success': True}
+    """
     photon_id = request.form.get('photon_id')
     node.add_photon(photon_id)
     return jsonify({'success': True})
@@ -205,6 +221,14 @@ def add_photon():
 
 @app.route('/give_photons', methods=['POST'])
 def give_photons():
+    """Give photons
+
+    This endpoint is used during join. It is used to hand over the photons from the new nodes successor to
+    the new node.
+
+    :param key: key
+    :returns: JSON list of photons that the caller is now responsible for. {'photons': [photon_id1, photon_id2, ...]}
+    """
     key = int(request.form.get('key'))
     result = node.give_photons(key)
     return jsonify({'photons': result})
@@ -212,6 +236,17 @@ def give_photons():
 
 @app.route('/add_backup', methods=['POST'])
 def add_backup():
+    """Add backup
+
+    Tell a node that it should be backup for a specific photon. The masters ip and port should also be given,
+    such that the backup can poll data and check whether the master is still alive. The master will raise a flag
+    in the polling response if this node is not backup anymore.
+
+    :param ip: the masters ip
+    :param port: the masters port
+    :param photon_id: the particle-io id of the photon that should have a backup at this node.
+    :returns: {'success': True}
+    """
     master_ip = request.form.get('ip')
     master_port = request.form.get('port')
     photon_id = request.form.get('photon_id')
@@ -221,6 +256,15 @@ def add_backup():
 
 @app.route('/get_latest_data', methods=['GET'])
 def get_latest_data():
+    """Get latest photon data
+
+    Return the latest data collected by a photon.
+
+    :param last_request: a timestamp for when the last request was sent or the time of the newest data stored locally.
+    :param photon_key: the key of the photon
+    :param request_id: the identity/key of the caller. This is used to tell whether the requester is backup for the photon
+    :return: JSON-response: {'success': bool, 'is_backup': bool, 'msg': data}, where data is a list [{date: '...', id: '..', data: ''}, ...]
+    """
     if request.args.get('last_request') is None or \
             request.args.get('photon_key') is None or \
             request.args.get('request_id') is None:
@@ -236,13 +280,28 @@ def get_latest_data():
 
 @app.route('/photon/<int:key>', methods=['GET'])
 def get_photon_data(key: int):
+    """Get photon data
+
+    Retrieve all photon data stored locally at a node
+
+    :param key: the key of the photon.
+    :returns: {'success': False, 'msg': 'No data for this photon key'} or {'success': True, 'msg': result}, where result is a list [{date: '...', id: '..', data: ''}, ...]
+    """
     result = node.get_photon_data(key)
     if result is None:
         return jsonify({'success': False, 'msg': 'No data for this photon key'})
     return jsonify({'success': True, 'msg': result})
 
+
 @app.route('/photon/<int:key>/graph', methods=['GET'])
 def get_photon_graph(key: int):
+    """Get photon graph
+
+    Retrieve a page where all photon data stored locally at a node is represented as a graph
+
+    :param key: the key of the photon.
+    :returns: {'success': False, 'msg': 'No data for this photon key'} or html-page with the photon data plotted as a graph
+    """
     result = node.get_photon_data(key)
     if result is None:
         return jsonify({'success': False, 'msg': 'No data for this photon key'})
@@ -285,7 +344,7 @@ def closest_finger(key):
     Report the closest preceding finger.
 
     :param key: the key that is searched for
-    :return: json response: {'node_ip': ip, 'node_port': port}
+    :returns: json response: {'node_ip': ip, 'node_port': port}
     """
     pf = node.closest_preceding_finger(key)
     return jsonify({'node_ip': pf.ip, 'node_port': pf.port})
@@ -299,7 +358,7 @@ def api(response):
     Print all available functions and list what parameters they take and what responses they produce.
 
     :param response: define whether the response should be json or html
-    :return:
+    :returns:
     """
     endpoints = {}
     for rule in app.url_map.iter_rules():

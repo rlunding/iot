@@ -287,7 +287,6 @@ class Node:
             except Exception as e:
                 print(e)
 
-
     def give_photons(self, key: int):
         result = [x.photon_id for x in self.photons if in_interval(self.key, key, x.key)]
         self.photons = [x for x in self.photons if not in_interval(self.key, key, x.key)]
